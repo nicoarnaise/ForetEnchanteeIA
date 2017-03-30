@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 0e1390a5f07c9704ab5d452c35b2f679
+timeCreated: 1490902354
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - emptyRoom: {fileID: 1453545092497152, guid: d5bf42c038d557a4798d214d2dd68e92,
+      type: 2}
+  - wind: {fileID: 1815063631847174, guid: 2c52d08a09520fa4d9e5b2c229a28dff, type: 2}
+  - poop: {fileID: 1716816286952182, guid: c77fb606aa979d249ae2676ec99064af, type: 2}
+  - monster: {fileID: 1763575094750398, guid: a3b33a8db0e861246b4d2b1c3d6125ab, type: 2}
+  - hole: {fileID: 1123214626528876, guid: b429f288f6a6d9d4e8605a7e3035a751, type: 2}
+  - exit: {fileID: 1563278011426000, guid: f36f620bf36681644922b00e390a5f5b, type: 2}
+  - start: {fileID: 1148745186904962, guid: 10d44a952f68fc348b2050667a0ad376, type: 2}
+  - data: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
