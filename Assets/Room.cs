@@ -2,35 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Room : MonoBehaviour
+public class Room
 {
     public static GameObject wind;
     public static GameObject poop;
     public bool hasPoop;
     public bool hasWind;
-    // Use this for initialization
-    void Start()
-    {
 
+    public Room()
+    {
+        hasPoop = false;
+        hasWind = false;
     }
 
-    // Update is called once per frame
-    void Update()
+    public Room(Room room)
     {
-
-    }
-
-    public void AddWind()
-    {
-        if (!hasWind)
-            Instantiate(wind, Vector3.zero, transform.rotation, transform).transform.localPosition = Vector3.zero;
-        hasWind = true;
+        hasPoop = room.hasPoop;
+        hasWind = room.hasWind;
     }
 
     public void AddPoop()
     {
-        if (!hasPoop)
-            Instantiate(poop, Vector3.zero, transform.rotation, transform).transform.localPosition = Vector3.zero;
+        hasWind = true;
+    }
+
+    public void AddWind()
+    {
         hasWind = true;
     }
 }

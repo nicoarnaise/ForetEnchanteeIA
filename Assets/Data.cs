@@ -4,9 +4,14 @@ using UnityEngine;
 
 public class Data : MonoBehaviour
 {
-    private int level = 0;
+    private static int level = 0;
+    public static int score = 0;
+    public static int moveScore = -1;
+    public static int rockScore = -10;
+    public static int dieScore;
+    public static int exitScore;
 
-    public int Level
+    public static int Level
     {
         get
         {
@@ -20,12 +25,18 @@ public class Data : MonoBehaviour
         if (FindObjectsOfType<Data>().Length > 1)
             DestroyImmediate(gameObject);
         else
+        {
             DontDestroyOnLoad(this);
+            dieScore = -10 * (int)Mathf.Pow(level + 3, 2);
+            exitScore = 10 * (int)Mathf.Pow(level + 3, 2);
+        }
     }
 
-    void IncreaseLevel()
+    public static void IncreaseLevel()
     {
         level++;
+        exitScore = 10 * (int)Mathf.Pow(level + 3, 2);
+        dieScore = -10 * (int)Mathf.Pow(level + 3, 2);
     }
 
     // Update is called once per frame

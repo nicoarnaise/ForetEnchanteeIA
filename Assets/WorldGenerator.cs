@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class WorldGenerator : MonoBehaviour
 {
-    public int roomSize;
+    public static int roomSize;
 
     public GameObject emptyRoom;
 
@@ -22,22 +22,26 @@ public class WorldGenerator : MonoBehaviour
     public GameObject exit;
     public GameObject start;
 
-    public Data data;
+    //public Data data;
     public Room[,] level;
+    public GameObject[,] levelObjects;
+    public Vector2 startPosition;
 
     // Use this for initialization
     void Start()
     {
         Room.poop = poop;
         Room.wind = wind;
-        data = FindObjectOfType<Data>();
+        //data = FindObjectOfType<Data>();
         monsterRate %= 1;
         holeRate %= 1;
-        int levelSize = 3 + data.Level;
+        int levelSize = 3 + Data.Level;
         level = new Room[levelSize, levelSize];
+        levelObjects = new GameObject[levelSize, levelSize];
         AddStartAndExit(levelSize);
         List<Vector2> monsters = new List<Vector2>();
         List<Vector2> holes = new List<Vector2>();
+
         for (int i = 0; i < levelSize; i++)
         {
             for (int j = 0; j < levelSize; j++)
@@ -50,16 +54,21 @@ public class WorldGenerator : MonoBehaviour
                     {
                         toInstantiate = monster;
                         monsters.Add(new Vector2(i, j));
+                        level[i, j] = new Monster();
                     }
                     else if (score < monsterRate + holeRate)
                     {
                         toInstantiate = hole;
                         holes.Add(new Vector2(i, j));
+                        level[i, j] = new Hole();
                     }
-                    level[i, j] = Instantiate(toInstantiate, new Vector3(i * roomSize, j * roomSize, 0), transform.rotation, transform.parent).GetComponent<Room>();
+                    else
+                        level[i, j] = new Room();
+                    levelObjects[i, j] = Instantiate(toInstantiate, new Vector3(i * roomSize, j * roomSize, 0), transform.rotation, transform.parent);
                 }
             }
         }
+
         foreach (Vector2 position in monsters)
         {
             for (int i = -1; i < 2; i += 2)
@@ -68,10 +77,12 @@ public class WorldGenerator : MonoBehaviour
                 if ((int)position.x + i >= 0 && (int)position.x + i < levelSize)
                 {
                     level[(int)position.x + i, (int)position.y].AddPoop();
+                    Instantiate(poop, new Vector3(position.x + i, position.y, 0), transform.rotation, transform.parent);
                 }
                 if ((int)position.y + i >= 0 && (int)position.y + i < levelSize)
                 {
                     level[(int)position.x, (int)position.y + i].AddPoop();
+                    Instantiate(poop, new Vector3(position.x, position.y + i, 0), transform.rotation, transform.parent);
                 }
             }
         }
@@ -83,10 +94,12 @@ public class WorldGenerator : MonoBehaviour
                 if ((int)position.x + i >= 0 && (int)position.x + i < levelSize)
                 {
                     level[(int)position.x + i, (int)position.y].AddWind();
+                    Instantiate(wind, new Vector3(position.x + i, position.y, 0), transform.rotation, transform.parent);
                 }
                 if ((int)position.y + i >= 0 && (int)position.y + i < levelSize)
                 {
                     level[(int)position.x, (int)position.y + i].AddWind();
+                    Instantiate(wind, new Vector3(position.x, position.y + i, 0), transform.rotation, transform.parent);
                 }
             }
         }
@@ -103,6 +116,8 @@ public class WorldGenerator : MonoBehaviour
             if (level[x, y] == null)
             {
                 GameObject toInstantiate = instantiatedObject == 0 ? start : exit /*Exit*/;
+                if (instantiatedObject == 0)
+                    startPosition = new Vector2(x, y);
                 //ToDo replace GameObject by player via Instantiate.
                 level[x, y] = Instantiate(toInstantiate, new Vector3(x * roomSize, y * roomSize, 0), transform.rotation, transform.parent).GetComponent<Room>();
                 instantiatedObject++;
@@ -114,5 +129,21 @@ public class WorldGenerator : MonoBehaviour
     void Update()
     {
 
+    }
+
+    public Room GetRoom(int x, int y)
+    {
+        return level[(int)startPosition.x + x, (int)startPosition.y + y];
+    }
+
+    public void TryKillMonsterAt(int x, int y)
+    {
+        if (level[(int)startPosition.x + x, (int)startPosition.y + y] is Monster)
+        {
+            GameObject tmp = levelObjects[(int)startPosition.x + x, (int)startPosition.y + y];
+            levelObjects[(int)startPosition.x + x, (int)startPosition.y + y] = Instantiate(emptyRoom, tmp.transform.position, tmp.transform.rotation, tmp.transform.parent);
+            DestroyImmediate(tmp);
+            level[(int)startPosition.x + x, (int)startPosition.y + y] = new Room(level[(int)startPosition.x + x, (int)startPosition.y + y]);
+        }
     }
 }
