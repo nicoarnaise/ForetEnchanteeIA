@@ -8,7 +8,7 @@ public class Data : MonoBehaviour
     public static int score = 0;
     public static int moveScore = -1;
     public static int rockScore = -10;
-    public static int dieScore;
+    public static int deathScore;
     public static int exitScore;
 
     public static int Level
@@ -27,7 +27,7 @@ public class Data : MonoBehaviour
         else
         {
             DontDestroyOnLoad(this);
-            dieScore = -10 * (int)Mathf.Pow(level + 3, 2);
+            deathScore = -10 * (int)Mathf.Pow(level + 3, 2);
             exitScore = 10 * (int)Mathf.Pow(level + 3, 2);
         }
     }
@@ -36,7 +36,7 @@ public class Data : MonoBehaviour
     {
         level++;
         exitScore = 10 * (int)Mathf.Pow(level + 3, 2);
-        dieScore = -10 * (int)Mathf.Pow(level + 3, 2);
+        deathScore = -10 * (int)Mathf.Pow(level + 3, 2);
     }
 
     // Update is called once per frame

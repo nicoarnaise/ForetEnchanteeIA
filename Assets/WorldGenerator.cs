@@ -21,7 +21,7 @@ public class WorldGenerator : MonoBehaviour
 
     public GameObject exit;
     public GameObject start;
-
+    public int levelSize;
     //public Data data;
     public Room[,] level;
     public GameObject[,] levelObjects;
@@ -35,7 +35,7 @@ public class WorldGenerator : MonoBehaviour
         //data = FindObjectOfType<Data>();
         monsterRate %= 1;
         holeRate %= 1;
-        int levelSize = 3 + Data.Level;
+        levelSize = 3 + Data.Level;
         level = new Room[levelSize, levelSize];
         levelObjects = new GameObject[levelSize, levelSize];
         AddStartAndExit(levelSize);
@@ -63,7 +63,7 @@ public class WorldGenerator : MonoBehaviour
                         level[i, j] = new Hole();
                     }
                     else
-                        level[i, j] = new Room();
+                        level[i, j] = new EmptyRoom();
                     levelObjects[i, j] = Instantiate(toInstantiate, new Vector3(i * roomSize, j * roomSize, 0), transform.rotation, transform.parent);
                 }
             }

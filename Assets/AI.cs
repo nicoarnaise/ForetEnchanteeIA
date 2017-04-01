@@ -14,7 +14,9 @@ public class AI : MonoBehaviour
     public int posY;
     private WorldGenerator world;
     private int memorySize = int.MaxValue;
-
+    private float monsterThreshold = 0.7f;
+    private float emptyRoomScore = 0.0f;
+    private int numberRoomLeft;
 
     private void Awake()
     {
@@ -23,6 +25,7 @@ public class AI : MonoBehaviour
         posY = int.MaxValue / 2;
         initialPosX = posX;
         initialPosY = posY;
+        numberRoomLeft = world.levelSize* world.levelSize;
 
         knownLevel = new Dictionary<Room, float>[memorySize, memorySize];
         for (int i = 0; i < int.MaxValue; i++)
@@ -45,30 +48,151 @@ public class AI : MonoBehaviour
 
     }
 
-    private List<Vector2> FindHighScoredRooms()
+    public void Play()
     {
-        List<Vector2> rooms = new List<Vector2>();
-        int actualMaxScore = int.MinValue;
+        SetBeliefs(); // Pourcentage of possibilities
+        Action(FindClosestRoom(FindHighScoredRooms())); // Action desired
+    }
+
+    private Dictionary<Room, float>[,] GetEligibleRooms()
+    {
+        Dictionary<Room, float>[,] eligibleRooms = knownLevel.Clone() as Dictionary<Room, float>[,];
         for (int i = 0; i < memorySize; i++)
         {
             for (int j = 0; j < memorySize; j++)
             {
-                int score = GetScoreOfCase(knownLevel[i, j]);
-                if (score >= actualMaxScore)
+                if (!IsEligible(i, j))
+                    eligibleRooms[i, j] = null;
+            }
+        }
+        return eligibleRooms;
+    }
+
+    private bool IsEligible(int i, int j)
+    {
+        if (knownLevel[i, j].Count == 1)
+            return false;
+        for (int k = -1; k < 2; k += 2)
+        {
+
+            if (i + k >= 0 && i + k < memorySize)
+            {
+                if (knownLevel[i + k, j].Count == 1)
+                    return true;
+            }
+            if (j + k >= 0 && j + k < memorySize)
+            {
+                if (knownLevel[i, j + k].Count == 1)
+                    return true;
+            }
+        }
+        return false;
+    }
+
+
+    private void SetBeliefs()
+    {
+        for (int i = 0; i < memorySize; i++)
+        {
+            for (int j = 0; j < memorySize; j++)
+            {
+                if (IsEligible(i, j))
                 {
-                    if (score > actualMaxScore)
-                        rooms.Clear();
-                    actualMaxScore = score;
-                    rooms.Add(new Vector2(i, j));
+                    SetProbabilities(i, j);
+                }
+            }
+        }
+    }
+
+    private void SetProbabilities(int i, int j)
+    {
+        foreach (Room room in knownLevel[i, j].Keys)
+        {
+            if (room is Exit)
+            {
+                knownLevel[i, j][room] = ((float)numberRoomLeft / (float)(world.levelSize * world.levelSize));
+            }
+            //TODO smthg
+        }
+    }
+
+    private List<Vector2> FindHighScoredRooms()
+    {
+        List<Vector2> rooms = new List<Vector2>();
+        float actualMaxScore = float.MinValue;
+        for (int i = 0; i < memorySize; i++)
+        {
+            for (int j = 0; j < memorySize; j++)
+            {
+                if (IsEligible(i, j))
+                {
+                    float score = GetScoreOfCase(knownLevel[i, j]);
+                    if (score >= actualMaxScore)
+                    {
+                        if (score > actualMaxScore)
+                            rooms.Clear();
+                        actualMaxScore = score;
+                        rooms.Add(new Vector2(i, j));
+                    }
                 }
             }
         }
         return rooms;
     }
 
-    private int GetScoreOfCase(Dictionary<Room, float> dictionary)
+    private Vector2 FindClosestRoom(List<Vector2> eligibleRooms)
     {
-        throw new NotImplementedException();
+        List<Vector2> identicalRooms = new List<Vector2>();
+        int minDistance = int.MaxValue;
+        for (int i = 0; i < eligibleRooms.Count; i++)
+        {
+            int currentDistance = (int)(Mathf.Abs(eligibleRooms[i].x - posX) + Mathf.Abs(eligibleRooms[i].y - posY));
+            if (currentDistance <= minDistance)
+            {
+                if (currentDistance < minDistance)
+                    identicalRooms.Clear();
+                minDistance = currentDistance;
+                identicalRooms.Add(eligibleRooms[i]);
+            }
+        }
+
+        return identicalRooms[UnityEngine.Random.Range(0, identicalRooms.Count)];
+    }
+
+
+
+    private float GetScoreOfCase(Dictionary<Room, float> dictionary)
+    {
+        float totalScore = 0f;
+        if (dictionary.Count == 1)
+            if (dictionary.Keys.GetEnumerator().Current is Exit)
+                return int.MaxValue;
+            else
+                return int.MinValue;
+        foreach (Room room in dictionary.Keys)
+        {
+            float roomChance = 0f;
+            if (dictionary.TryGetValue(room, out roomChance))
+            {
+                if (room is Exit)
+                {
+                    totalScore += roomChance * Data.exitScore;
+                }
+                if (room is Hole)
+                {
+                    totalScore += roomChance * Data.deathScore;
+                }
+                if (room is Monster)
+                {
+                    totalScore += roomChance > monsterThreshold ? roomChance * Data.rockScore : roomChance * Data.deathScore;
+                }
+                if (room is EmptyRoom)
+                {
+                    totalScore += roomChance * emptyRoomScore;
+                }
+            }
+        }
+        return totalScore;
     }
 
     private void MoveUp()
@@ -123,8 +247,12 @@ public class AI : MonoBehaviour
 
     private void UpdateCurrentState()
     {
-        knownLevel[posX, posY].Clear();
-        knownLevel[posX, posY].Add(world.GetRoom(posX - initialPosX, posY - initialPosY), 1);
+        if (knownLevel[posX, posY].Count > 1)
+        {
+            knownLevel[posX, posY].Clear();
+            knownLevel[posX, posY].Add(world.GetRoom(posX - initialPosX, posY - initialPosY), 1);
+            numberRoomLeft--;
+        }
     }
 
     private void CheckStatut()
@@ -140,7 +268,7 @@ public class AI : MonoBehaviour
 
     private void Die()
     {
-        Data.score += Data.dieScore;
+        Data.score += Data.deathScore;
         posX = initialPosX;
         posY = initialPosY;
         transform.position = initialPosition;
