@@ -25,7 +25,7 @@ public class AI : MonoBehaviour
         posY = int.MaxValue / 2;
         initialPosX = posX;
         initialPosY = posY;
-        numberRoomLeft = world.levelSize* world.levelSize;
+        numberRoomLeft = world.levelSize * world.levelSize;
 
         knownLevel = new Dictionary<Room, float>[memorySize, memorySize];
         for (int i = 0; i < int.MaxValue; i++)
@@ -164,9 +164,11 @@ public class AI : MonoBehaviour
     private float GetScoreOfCase(Dictionary<Room, float> dictionary)
     {
         float totalScore = 0f;
+        if (dictionary.Count == 0)
+            return float.MinValue;
         if (dictionary.Count == 1)
             if (dictionary.Keys.GetEnumerator().Current is Exit)
-                return int.MaxValue;
+                return float.MaxValue;
             else
                 return int.MinValue;
         foreach (Room room in dictionary.Keys)
@@ -226,8 +228,56 @@ public class AI : MonoBehaviour
     private void Move()
     {
         Data.score += Data.moveScore;
+        CheckForBorder();
         UpdateCurrentState();
         CheckStatut();
+    }
+
+    private void CheckForBorder()
+    {
+        if (world.GetRoom(posX - initialPosX + 1, posY - initialPosY) == null)
+        {
+            for (int i = posX + 1; i < memorySize; i++)
+            {
+                for (int j = 0; j < memorySize; j++)
+                {
+                    knownLevel[i, j].Clear();
+                }
+            }
+        }
+
+        if (world.GetRoom(posX - initialPosX - 1, posY - initialPosY) == null)
+        {
+            for (int i = posX - 1; i >= 0; i--)
+            {
+                for (int j = 0; j < memorySize; j++)
+                {
+                    knownLevel[i, j].Clear();
+                }
+            }
+        }
+
+        if (world.GetRoom(posX - initialPosX, posY - initialPosY + 1) == null)
+        {
+            for (int i = 0; i < memorySize; i++)
+            {
+                for (int j = posY + 1; j < memorySize; j++)
+                {
+                    knownLevel[i, j].Clear();
+                }
+            }
+        }
+
+        if (world.GetRoom(posX - initialPosX, posY - initialPosY - 1) == null)
+        {
+            for (int i = 0; i < memorySize; i++)
+            {
+                for (int j = posY - 1; j >= 0; j--)
+                {
+                    knownLevel[i, j].Clear();
+                }
+            }
+        }
     }
 
     private void ThrowRock(Vector2 direction)
