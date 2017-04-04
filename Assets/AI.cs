@@ -171,7 +171,22 @@ public class AI : MonoBehaviour
             {
                 knownLevel[i, j][room] = ((float)numberRoomLeft / (float)(world.levelSize * world.levelSize));
             }
-            //TODO smthg
+            if (room is Monster)
+            {
+                //Proba 4 monster
+            }
+            if (room is Hole)
+            {
+
+            }
+            if (room is EmptyRoom)
+            {
+                knownLevel[i, j][room] = 1 - total;
+            }
+            else
+            {
+                total += knownLevel[i, j][room];
+            }
         }
     }
 
