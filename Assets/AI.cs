@@ -165,6 +165,7 @@ public class AI : MonoBehaviour
 
     private void SetProbabilities(int i, int j)
     {
+        float total = 0f;
         foreach (Room room in knownLevel[i, j].Keys)
         {
             if (room is Exit)
