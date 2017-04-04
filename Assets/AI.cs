@@ -447,8 +447,8 @@ public class AI : MonoBehaviour
 		for (int i=0; i< arcs.Count;i++){
 			if (arcs[i].finish == s2){
 				newScore = s1.score + arcs[i].weight;
+				break;
 			}
-			break;
 		}
 
 		if (s2.score > newScore) {
