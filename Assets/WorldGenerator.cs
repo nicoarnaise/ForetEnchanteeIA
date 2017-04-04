@@ -115,11 +115,17 @@ public class WorldGenerator : MonoBehaviour
             int y = Random.Range(0, levelSize);
             if (level[x, y] == null)
             {
+                Room toAdd;
+                if (instantiatedObject == 0)
+                    toAdd = new EmptyRoom();
+                else
+                    toAdd = new Exit();
                 GameObject toInstantiate = instantiatedObject == 0 ? start : exit /*Exit*/;
                 if (instantiatedObject == 0)
                     startPosition = new Vector2(x, y);
                 //ToDo replace GameObject by player via Instantiate.
-                level[x, y] = Instantiate(toInstantiate, new Vector3(x * roomSize, y * roomSize, 0), transform.rotation, transform.parent).GetComponent<Room>();
+                level[x, y] = toAdd;
+                Instantiate(toInstantiate, new Vector3(x * roomSize, y * roomSize, 0), transform.rotation, transform.parent);
                 instantiatedObject++;
             }
         }
