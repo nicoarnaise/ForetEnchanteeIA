@@ -322,6 +322,16 @@ Prefab:
       value: 
       objectReference: {fileID: 1453545092497152, guid: d5bf42c038d557a4798d214d2dd68e92,
         type: 2}
+    - target: {fileID: 114150931171937718, guid: a61a13fa767c4314baa5b1dce8de2c36,
+        type: 2}
+      propertyPath: monsterRate
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114150931171937718, guid: a61a13fa767c4314baa5b1dce8de2c36,
+        type: 2}
+      propertyPath: holeRate
+      value: 0.1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a61a13fa767c4314baa5b1dce8de2c36, type: 2}
   m_IsPrefabParent: 0
