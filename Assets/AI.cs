@@ -55,9 +55,9 @@ public class AI : MonoBehaviour
     public void Play()
     {
 		if (isActionFinished){
-		isActionFinished = false;
-        SetBeliefs(); // Pourcentage of possibilities
-		actionList = FindClosestRoomPath(FindHighScoredRooms()); // List of Rooms to visit
+		    isActionFinished = false;
+            SetBeliefs(); // Pourcentage of possibilities
+		    actionList = FindClosestRoomPath(FindHighScoredRooms()); // List of Rooms to visit
 		}
 		MakeAction(actionList); // Action taken over the rooms to visit
     }
@@ -174,11 +174,11 @@ public class AI : MonoBehaviour
             }
             if (room is Monster)
             {
-                //Proba 4 monster
+                knownLevel[i, j][room] = getRoomProb(i, j, room, world.monsterRate);
             }
             if (room is Hole)
             {
-
+                knownLevel[i, j][room] = getRoomProb(i, j, room, world.holeRate);
             }
             if (room is EmptyRoom)
             {
@@ -189,6 +189,104 @@ public class AI : MonoBehaviour
                 total += knownLevel[i, j][room];
             }
         }
+    }
+
+    private float getRoomProb(int i, int j, Room room, float rate)
+    {
+        float dangerProb = 0;
+        float nonDangerProb = 1;
+        switch (getPredictorsCount(i, j, room))
+        {
+            case 0:
+                dangerProb = rate;
+                nonDangerProb = 1 - rate;
+                break;
+            case 1:
+                dangerProb = rate;
+                nonDangerProb = (1 - rate) * ((float)Math.Pow(rate, 2) + 2 * rate * (1 - rate));
+                break;
+            case 2:
+                dangerProb = rate;
+                nonDangerProb = (1 - rate) * ((float)Math.Pow(rate, 4) + 4 * (float)Math.Pow(rate, 3) * (1 - rate) + 4 * (float)Math.Pow(rate, 2) * (float)Math.Pow(1 - rate, 2));
+                break;
+            case 3:
+                // none of the 3 predictors are fully known
+                dangerProb = rate;
+                nonDangerProb = (1 - rate) * ((float)Math.Pow(rate, 4) + 4 * (float)Math.Pow(rate, 3) * (1 - rate) + 3 * (float)Math.Pow(rate, 2) * (float)Math.Pow(1 - rate, 2));
+                break;
+            case 4:
+            case 5:
+                dangerProb = 1;
+                nonDangerProb = 0;
+                break;
+        }
+        return dangerProb / (dangerProb + nonDangerProb);
+    }
+
+    private int getPredictorsCount(int i, int j, Room room)
+    {
+        int count = 4;
+        // count == -1 => no danger possible
+        // count == 5 => fully filled predictor => danger in this room
+        count = majPredictorsCount(i - 1, j, room, count);
+        if (count == -1 || count == 5) return count;
+        count = majPredictorsCount(i + 1, j, room, count);
+        if (count == -1 || count == 5) return count;
+        count = majPredictorsCount(i, j - 1, room, count);
+        if (count == -1 || count == 5) return count;
+        count = majPredictorsCount(i, j + 1, room, count);
+
+        return count;
+    }
+
+    private int majPredictorsCount(int i, int j, Room room, int count)
+    {
+        if (knownLevel[i, j].Count == 1)
+        {
+            foreach (Room neighboor in knownLevel[i, j].Keys)
+            {
+                if ((room is Monster && !neighboor.hasPoop) || (room is Hole && !neighboor.hasWind))
+                {
+                    // known and not predictor => no danger
+                    count = -1;
+                }
+                else
+                {
+                    // knonw and predictor => check predictor's neighborhood
+                    int noDanger = 0;
+                    for(int k = -1; k < 2; k += 2)
+                    {
+                        for(int l = -1; l < 2; l += 2)
+                        {
+                            if(knownLevel[k,l].Count == 1)
+                            {
+                                foreach(Room neiV2 in knownLevel[k, l].Keys)
+                                {
+                                    // the predictor has a known danger in his neighborhood
+                                    if (neiV2 is Monster && room is Monster || neiV2 is Hole && room is Hole)
+                                        return Math.Max(0, count - 1);
+                                    if (neiV2 is EmptyRoom)
+                                    {
+                                        noDanger++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(noDanger == 3)
+                    {
+                        // predictor has three known and empty neighboors
+                        count = 5;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // unknown => no predictor
+            count = Math.Max(0, count - 1);
+        }
+        return count;
     }
 
     private List<Vector2> FindHighScoredRooms()
