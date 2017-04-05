@@ -41,16 +41,17 @@ public class Graph {
 			Node node = graphNodes [i];
 
 			if (node.line != nbLine - 1) {
-				node.addArc (graphNodes [i+nbLine], tabEligible[i+nbLine]);
+				node.addArc (graphNodes [node.id+nbLine], tabEligible[node.id+nbLine]);
 			}
 			if (node.line != 0) {
-				node.addArc (graphNodes [i+nbLine], tabEligible[i-nbLine]);
+				Debug.Log (node.id);
+				node.addArc (graphNodes [node.id-nbLine], tabEligible[node.id-nbLine]);
 			}
 			if (node.column != nbLine - 1 ) {
-				node.addArc(graphNodes[i+1],tabEligible[i+1]);
+				node.addArc(graphNodes[node.id+1],tabEligible[node.id+1]);
 			}
 			if (node.column != 0) {
-				node.addArc (graphNodes [i-1], tabEligible[i-1]);
+				node.addArc (graphNodes [node.id-1], tabEligible[node.id-1]);
 			}
 
 		}
