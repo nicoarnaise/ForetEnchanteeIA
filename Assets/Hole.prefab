@@ -19,7 +19,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4295977525655624}
-  - component: {fileID: 114057478426177932}
   - component: {fileID: 212350198298939726}
   m_Layer: 0
   m_Name: Hole
@@ -41,19 +40,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114057478426177932
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1123214626528876}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 903e3d97b826eef4495bd0f1ddece10a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hasPoop: 0
-  hasWind: 0
 --- !u!212 &212350198298939726
 SpriteRenderer:
   m_ObjectHideFlags: 1

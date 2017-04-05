@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -280,6 +280,48 @@ Prefab:
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 114150931171937718, guid: a61a13fa767c4314baa5b1dce8de2c36,
+        type: 2}
+      propertyPath: holeObj
+      value: 
+      objectReference: {fileID: 1123214626528876, guid: b429f288f6a6d9d4e8605a7e3035a751,
+        type: 2}
+    - target: {fileID: 114150931171937718, guid: a61a13fa767c4314baa5b1dce8de2c36,
+        type: 2}
+      propertyPath: monsterObj
+      value: 
+      objectReference: {fileID: 1763575094750398, guid: a3b33a8db0e861246b4d2b1c3d6125ab,
+        type: 2}
+    - target: {fileID: 114150931171937718, guid: a61a13fa767c4314baa5b1dce8de2c36,
+        type: 2}
+      propertyPath: poopObj
+      value: 
+      objectReference: {fileID: 1716816286952182, guid: c77fb606aa979d249ae2676ec99064af,
+        type: 2}
+    - target: {fileID: 114150931171937718, guid: a61a13fa767c4314baa5b1dce8de2c36,
+        type: 2}
+      propertyPath: windObj
+      value: 
+      objectReference: {fileID: 1815063631847174, guid: 2c52d08a09520fa4d9e5b2c229a28dff,
+        type: 2}
+    - target: {fileID: 114150931171937718, guid: a61a13fa767c4314baa5b1dce8de2c36,
+        type: 2}
+      propertyPath: startObj
+      value: 
+      objectReference: {fileID: 1148745186904962, guid: 10d44a952f68fc348b2050667a0ad376,
+        type: 2}
+    - target: {fileID: 114150931171937718, guid: a61a13fa767c4314baa5b1dce8de2c36,
+        type: 2}
+      propertyPath: exitObj
+      value: 
+      objectReference: {fileID: 1563278011426000, guid: f36f620bf36681644922b00e390a5f5b,
+        type: 2}
+    - target: {fileID: 114150931171937718, guid: a61a13fa767c4314baa5b1dce8de2c36,
+        type: 2}
+      propertyPath: emptyRoomObj
+      value: 
+      objectReference: {fileID: 1453545092497152, guid: d5bf42c038d557a4798d214d2dd68e92,
+        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a61a13fa767c4314baa5b1dce8de2c36, type: 2}
   m_IsPrefabParent: 0
