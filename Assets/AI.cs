@@ -17,24 +17,25 @@ public class AI : MonoBehaviour
     private float monsterThreshold = 0.7f;
     private float emptyRoomScore = 0.0f;
     private int numberRoomLeft;
-	private bool isActionFinished;
-	private List<Vector2> actionList;
+    private bool isActionFinished;
+    private List<Vector2> actionList;
 
     private void Awake()
     {
         world = FindObjectOfType<WorldGenerator>();
-        posX = int.MaxValue / 2;
-        posY = int.MaxValue / 2;
+        memorySize = world.levelSize * 2 + 1;
+        posX = memorySize / 2 + 1;
+        posY = memorySize / 2 + 1;
         initialPosX = posX;
         initialPosY = posY;
         numberRoomLeft = world.levelSize * world.levelSize;
-		isActionFinished = true;
-		actionList = new List<Vector2> ();
+        isActionFinished = true;
+        actionList = new List<Vector2>();
 
         knownLevel = new Dictionary<Room, float>[memorySize, memorySize];
-        for (int i = 0; i < int.MaxValue; i++)
+        for (int i = 0; i < memorySize; i++)
         {
-            for (int j = 0; j < int.MaxValue; j++)
+            for (int j = 0; j < memorySize; j++)
             {
                 knownLevel[i, j] = new Dictionary<Room, float>();
                 knownLevel[i, j].Add(new Monster(), .25f);
@@ -54,64 +55,77 @@ public class AI : MonoBehaviour
 
     public void Play()
     {
-		if (isActionFinished){
-		    isActionFinished = false;
+        if (isActionFinished)
+        {
+            isActionFinished = false;
             SetBeliefs(); // Pourcentage of possibilities
-		    actionList = FindClosestRoomPath(FindHighScoredRooms()); // List of Rooms to visit
-		}
-		MakeAction(actionList); // Action taken over the rooms to visit
+            actionList = FindClosestRoomPath(FindHighScoredRooms()); // List of Rooms to visit
+        }
+        MakeAction(actionList); // Action taken over the rooms to visit
     }
 
-	private void MakeAction(List<Vector2> rooms){
-		List<Vector2> auxRooms = rooms;
-		if (auxRooms.Count > 1) {
-			MakeMove (auxRooms [0]);
-			auxRooms.RemoveAt(0);
-		}
-		if (auxRooms.Count == 1) {
-			int line = (int) auxRooms [0].x;
-			int column = (int) auxRooms [0].y;
+    private void MakeAction(List<Vector2> rooms)
+    {
+        List<Vector2> auxRooms = rooms;
+        if (auxRooms.Count > 1)
+        {
+            MakeMove(auxRooms[0]);
+            auxRooms.RemoveAt(0);
+        }
+        if (auxRooms.Count == 1)
+        {
+            int line = (int)auxRooms[0].x;
+            int column = (int)auxRooms[0].y;
 
-			int potentialRoomSize = (world.levelSize * 2 - 1) * (world.levelSize * 2 - 1);
-			int nbLine = (int)Mathf.Sqrt (potentialRoomSize);
-			int lineRoot = nbLine / 2;
+            int potentialRoomSize = (world.levelSize * 2 - 1) * (world.levelSize * 2 - 1);
+            int nbLine = (int)Mathf.Sqrt(potentialRoomSize);
+            int lineRoot = nbLine / 2;
 
-			int coordX = line + (memorySize / 2) - lineRoot;
-			int coordY = column + (memorySize / 2) - lineRoot;
+            int coordX = line + (memorySize / 2) - lineRoot;
+            int coordY = column + (memorySize / 2) - lineRoot;
 
-			foreach (Room room in knownLevel[coordX,coordY].Keys)
-			{
-				float roomChance = 0f;
-				if (knownLevel[coordX,coordY].TryGetValue(room, out roomChance))
-				{
-					if (room is Monster) {
-						if (roomChance > monsterThreshold) {
-							ThrowRock (new Vector2 (coordX, coordY));
-						}
-					} else {
-						MakeMove (auxRooms [0]);
-						auxRooms.RemoveAt (0);
-						isActionFinished = true;
-					}
-				}
-			}
-		}
-	}
+            foreach (Room room in knownLevel[coordX, coordY].Keys)
+            {
+                float roomChance = 0f;
+                if (knownLevel[coordX, coordY].TryGetValue(room, out roomChance))
+                {
+                    if (room is Monster)
+                    {
+                        if (roomChance > monsterThreshold)
+                        {
+                            ThrowRock(new Vector2(coordX, coordY));
+                        }
+                    }
+                    else
+                    {
+                        MakeMove(auxRooms[0]);
+                        auxRooms.RemoveAt(0);
+                        isActionFinished = true;
+                    }
+                }
+            }
+        }
+    }
 
-	private void MakeMove(Vector2 room){
-		if (room.x > posX) {
-			MoveRight ();
-		}
-		if (room.x < posX) {
-			MoveLeft ();
-		}
-		if (room.y < posY) {
-			MoveUp ();
-		}
-		if (room.y > posY) {
-			MoveDown ();
-		}
-	}
+    private void MakeMove(Vector2 room)
+    {
+        if (room.x > posX)
+        {
+            MoveRight();
+        }
+        if (room.x < posX)
+        {
+            MoveLeft();
+        }
+        if (room.y < posY)
+        {
+            MoveUp();
+        }
+        if (room.y > posY)
+        {
+            MoveDown();
+        }
+    }
 
     private Dictionary<Room, float>[,] GetEligibleRooms()
     {
@@ -254,13 +268,13 @@ public class AI : MonoBehaviour
                 {
                     // knonw and predictor => check predictor's neighborhood
                     int noDanger = 0;
-                    for(int k = -1; k < 2; k += 2)
+                    for (int k = -1; k < 2; k += 2)
                     {
-                        for(int l = -1; l < 2; l += 2)
+                        for (int l = -1; l < 2; l += 2)
                         {
-                            if(knownLevel[k,l].Count == 1)
+                            if (knownLevel[k, l].Count == 1)
                             {
-                                foreach(Room neiV2 in knownLevel[k, l].Keys)
+                                foreach (Room neiV2 in knownLevel[k, l].Keys)
                                 {
                                     // the predictor has a known danger in his neighborhood
                                     if (neiV2 is Monster && room is Monster || neiV2 is Hole && room is Hole)
@@ -273,7 +287,7 @@ public class AI : MonoBehaviour
                             }
                         }
                     }
-                    if(noDanger == 3)
+                    if (noDanger == 3)
                     {
                         // predictor has three known and empty neighboors
                         count = 5;
@@ -316,24 +330,28 @@ public class AI : MonoBehaviour
     private List<Vector2> FindClosestRoomPath(List<Vector2> eligibleRooms)
     {
         List<Vector2> identicalRooms = new List<Vector2>();
-		int potentialRoomSize = (world.levelSize * 2 - 1) * (world.levelSize * 2 - 1);
-		int nbLine = (int)Mathf.Sqrt (potentialRoomSize);
-		int lineRoot = nbLine / 2;
+        int potentialRoomSize = (world.levelSize * 2 - 1) * (world.levelSize * 2 - 1);
+        int nbLine = (int)Mathf.Sqrt(potentialRoomSize);
+        int lineRoot = nbLine / 2;
 
-		Node root = new Node (potentialRoomSize / 2, lineRoot, lineRoot, 0);
+        Node root = new Node(potentialRoomSize / 2, lineRoot, lineRoot, 0);
 
-		int[] potentialRooms = new int[potentialRoomSize];
-		for (int i = 0; i < potentialRoomSize; i++) {
-			int coordX = (i / nbLine) + (memorySize / 2) - lineRoot;
-			int coordY = (i % nbLine) + (memorySize / 2) - lineRoot;
-			if (knownLevel [coordX, coordY].Count == 1 || eligibleRooms.Contains(new Vector2(coordX,coordY))) { 
-				potentialRooms [i] = 1;
-			} else {
-				potentialRooms [i] = 10000;
-			}
-		}
-		identicalRooms = Disjtra(new Graph(potentialRooms,(world.levelSize*2-1) * (world.levelSize*2-1), root));
-		return identicalRooms;
+        int[] potentialRooms = new int[potentialRoomSize];
+        for (int i = 0; i < potentialRoomSize; i++)
+        {
+            int coordX = (i / nbLine) + (memorySize / 2) - lineRoot;
+            int coordY = (i % nbLine) + (memorySize / 2) - lineRoot;
+            if (knownLevel[coordX, coordY].Count == 1 || eligibleRooms.Contains(new Vector2(coordX, coordY)))
+            {
+                potentialRooms[i] = 1;
+            }
+            else
+            {
+                potentialRooms[i] = 10000;
+            }
+        }
+        identicalRooms = Disjtra(new Graph(potentialRooms, (world.levelSize * 2 - 1) * (world.levelSize * 2 - 1), root));
+        return identicalRooms;
     }
 
 
@@ -509,65 +527,75 @@ public class AI : MonoBehaviour
     }
 
 
-	public List<Vector2> Disjtra(Graph G)
-	{
-		List<Vector2> optimalPath = new List<Vector2> ();
-		List<Node> remainingNodes = G.graphNodes;
-		Node sdeb = remainingNodes [0];
-		Node sfin = remainingNodes [G.graphNodes.Count - 1];
+    public List<Vector2> Disjtra(Graph G)
+    {
+        List<Vector2> optimalPath = new List<Vector2>();
+        List<Node> remainingNodes = G.graphNodes;
+        Node sdeb = remainingNodes[0];
+        Node sfin = remainingNodes[G.graphNodes.Count - 1];
 
-		while (remainingNodes.Count > 0) {
-			Node s1 = findminScore (remainingNodes);
-			remainingNodes.Remove (s1);
-			for (int i = 0; i < s1.arcs.Count; i++) {
-				updateScores (s1, s1.arcs[i].finish);
-			}
-			if (IsEligible (s1.line, s1.column)) {
-				sfin = s1;
-				break;
-			}
-		}
+        while (remainingNodes.Count > 0)
+        {
+            Node s1 = findminScore(remainingNodes);
+            remainingNodes.Remove(s1);
+            for (int i = 0; i < s1.arcs.Count; i++)
+            {
+                updateScores(s1, s1.arcs[i].finish);
+            }
+            if (IsEligible(s1.line, s1.column))
+            {
+                sfin = s1;
+                break;
+            }
+        }
 
-		Node s = sfin;
-		while (s != sdeb) {
-			optimalPath.Add (new Vector3(s.line, s.column));
-			s = s.father;
-		}
-		
-		return optimalPath;
-	}
+        Node s = sfin;
+        while (s != sdeb)
+        {
+            optimalPath.Add(new Vector3(s.line, s.column));
+            s = s.father;
+        }
+
+        return optimalPath;
+    }
 
 
 
-	public Node findminScore(List<Node> nodes){
-		int minScore = int.MaxValue;
-		Node minNode = null;
-		for (int i = 0; i < nodes.Count; i++) {
-			Node currentNode = nodes [i];
-			int currentScore = currentNode.score;
-			if (currentScore < minScore) {
-				minScore = currentScore;
-				minNode = currentNode;
-			}
-		}
-		return minNode;
-	}
-				
-	public void updateScores(Node s1, Node s2)
-	{
-		int newScore = int.MaxValue;
-		List <Arc> arcs = s1.arcs;
+    public Node findminScore(List<Node> nodes)
+    {
+        int minScore = int.MaxValue;
+        Node minNode = null;
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            Node currentNode = nodes[i];
+            int currentScore = currentNode.score;
+            if (currentScore < minScore)
+            {
+                minScore = currentScore;
+                minNode = currentNode;
+            }
+        }
+        return minNode;
+    }
 
-		for (int i=0; i< arcs.Count;i++){
-			if (arcs[i].finish == s2){
-				newScore = s1.score + arcs[i].weight;
-				break;
-			}
-		}
+    public void updateScores(Node s1, Node s2)
+    {
+        int newScore = int.MaxValue;
+        List<Arc> arcs = s1.arcs;
 
-		if (s2.score > newScore) {
-			s2.score = newScore;
-			s2.father = s1;
-		}
-	}
+        for (int i = 0; i < arcs.Count; i++)
+        {
+            if (arcs[i].finish == s2)
+            {
+                newScore = s1.score + arcs[i].weight;
+                break;
+            }
+        }
+
+        if (s2.score > newScore)
+        {
+            s2.score = newScore;
+            s2.father = s1;
+        }
+    }
 }
