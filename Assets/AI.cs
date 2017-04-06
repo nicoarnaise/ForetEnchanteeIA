@@ -45,6 +45,7 @@ public class AI : MonoBehaviour
             }
         }
         initialPosition = transform.position;
+        CheckForBorder();
     }
 
     // Update is called once per frame
@@ -55,14 +56,12 @@ public class AI : MonoBehaviour
 
     public void Play()
     {
-        //Debug.Log(isActionFinished);
         if (actionList.Count == 0)
         {
             isActionFinished = false;
             SetBeliefs(); // Pourcentage of possibilities
             actionList = FindClosestRoomPath(FindHighScoredRooms()); // List of Rooms to visit
         }
-        Debug.Log(actionList.Count);
         MakeAction(actionList); // Action taken over the rooms to visit
     }
 
@@ -121,11 +120,11 @@ public class AI : MonoBehaviour
         }
         if (room.y < posY)
         {
-            MoveUp();
+            MoveDown();
         }
         if (room.y > posY)
         {
-            MoveDown();
+            MoveUp();
         }
     }
 
@@ -146,6 +145,8 @@ public class AI : MonoBehaviour
     private bool IsEligible(int i, int j)
     {
         if (knownLevel[i, j].Count == 1)
+            return false;
+        if (knownLevel[i, j].Count == 0)
             return false;
         for (int k = -1; k < 2; k += 2)
         {
@@ -332,7 +333,6 @@ public class AI : MonoBehaviour
     private List<Vector2> FindClosestRoomPath(List<Vector2> eligibleRooms)
     {
         List<Vector2> identicalRooms = new List<Vector2>();
-        Debug.Log(world);
         int potentialRoomSize = (world.levelSize * 2 - 1) * (world.levelSize * 2 - 1);
         int nbLine = (int)Mathf.Sqrt(potentialRoomSize);
         int lineRoot = nbLine / 2;
@@ -397,29 +397,29 @@ public class AI : MonoBehaviour
 
     private void MoveUp()
     {
-        posY--;
-        transform.Translate(Vector3.up * WorldGenerator.roomSize);
+        posY++;
+        transform.Translate(Vector3.up);
         Move();
     }
 
     private void MoveDown()
     {
-        posY++;
-        transform.Translate(Vector3.down * WorldGenerator.roomSize);
+        posY--;
+        transform.Translate(Vector3.down);
         Move();
     }
 
     private void MoveRight()
     {
         posX++;
-        transform.Translate(Vector3.right * WorldGenerator.roomSize);
+        transform.Translate(Vector3.right);
         Move();
     }
 
     private void MoveLeft()
     {
         posX--;
-        transform.Translate(Vector3.left * WorldGenerator.roomSize);
+        transform.Translate(Vector3.left);
         Move();
     }
 
@@ -433,6 +433,7 @@ public class AI : MonoBehaviour
 
     private void CheckForBorder()
     {
+        Debug.Log("AI : " + (posX - initialPosX + 1) + "," + (posY - initialPosY));
         if (world.GetRoom(posX - initialPosX + 1, posY - initialPosY) == null)
         {
             for (int i = posX + 1; i < memorySize; i++)
@@ -443,7 +444,7 @@ public class AI : MonoBehaviour
                 }
             }
         }
-
+        Debug.Log("AI : " + (posX - initialPosX - 1) + "," + (posY - initialPosY));
         if (world.GetRoom(posX - initialPosX - 1, posY - initialPosY) == null)
         {
             for (int i = posX - 1; i >= 0; i--)
@@ -454,7 +455,7 @@ public class AI : MonoBehaviour
                 }
             }
         }
-
+        Debug.Log("AI : " + (posX - initialPosX) + "," + (posY - initialPosY + 1));
         if (world.GetRoom(posX - initialPosX, posY - initialPosY + 1) == null)
         {
             for (int i = 0; i < memorySize; i++)
@@ -465,7 +466,7 @@ public class AI : MonoBehaviour
                 }
             }
         }
-
+        Debug.Log("AI : " + (posX - initialPosX) + "," + (posY - initialPosY - 1));
         if (world.GetRoom(posX - initialPosX, posY - initialPosY - 1) == null)
         {
             for (int i = 0; i < memorySize; i++)
