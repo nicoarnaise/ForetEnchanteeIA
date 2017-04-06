@@ -45,7 +45,6 @@ public class AI : MonoBehaviour
             }
         }
         initialPosition = transform.position;
-        CheckForBorder();
     }
 
     // Update is called once per frame
@@ -168,6 +167,8 @@ public class AI : MonoBehaviour
 
     private void SetBeliefs()
     {
+        UpdateCurrentState();
+        CheckForBorder();
         for (int i = 0; i < memorySize; i++)
         {
             for (int j = 0; j < memorySize; j++)
@@ -183,7 +184,9 @@ public class AI : MonoBehaviour
     private void SetProbabilities(int i, int j)
     {
         float total = 0f;
-        foreach (Room room in knownLevel[i, j].Keys)
+        Room[] keys = new Room[knownLevel[i,j].Count];
+        knownLevel[i, j].Keys.CopyTo(keys, 0);
+        foreach (Room room in keys)
         {
             if (room is Exit)
             {
@@ -275,16 +278,19 @@ public class AI : MonoBehaviour
                     {
                         for (int l = -1; l < 2; l += 2)
                         {
-                            if (knownLevel[k, l].Count == 1)
+                            if(k>0 && k<memorySize && l>0 && l < memorySize)
                             {
-                                foreach (Room neiV2 in knownLevel[k, l].Keys)
+                                if (knownLevel[k, l].Count == 1)
                                 {
-                                    // the predictor has a known danger in his neighborhood
-                                    if (neiV2 is Monster && room is Monster || neiV2 is Hole && room is Hole)
-                                        return Math.Max(0, count - 1);
-                                    if (neiV2 is EmptyRoom)
+                                    foreach (Room neiV2 in knownLevel[k, l].Keys)
                                     {
-                                        noDanger++;
+                                        // the predictor has a known danger in his neighborhood
+                                        if (neiV2 is Monster && room is Monster || neiV2 is Hole && room is Hole)
+                                            return Math.Max(0, count - 1);
+                                        if (neiV2 is EmptyRoom)
+                                        {
+                                            noDanger++;
+                                        }
                                     }
                                 }
                             }
@@ -308,15 +314,17 @@ public class AI : MonoBehaviour
 
     private List<Vector2> FindHighScoredRooms()
     {
+        Dictionary<Room, float>[,] goodRooms = (Dictionary < Room, float>[,]) GetEligibleRooms().Clone();
         List<Vector2> rooms = new List<Vector2>();
         float actualMaxScore = float.MinValue;
         for (int i = 0; i < memorySize; i++)
         {
             for (int j = 0; j < memorySize; j++)
             {
-                if (IsEligible(i, j))
+                if (goodRooms[i, j]!=null)
                 {
-                    float score = GetScoreOfCase(knownLevel[i, j]);
+                    float score = GetScoreOfCase(goodRooms[i, j]);
+                    Debug.Log(score);
                     if (score >= actualMaxScore)
                     {
                         if (score > actualMaxScore)
@@ -433,7 +441,6 @@ public class AI : MonoBehaviour
 
     private void CheckForBorder()
     {
-        Debug.Log("AI : " + (posX - initialPosX + 1) + "," + (posY - initialPosY));
         if (world.GetRoom(posX - initialPosX + 1, posY - initialPosY) == null)
         {
             for (int i = posX + 1; i < memorySize; i++)
@@ -444,7 +451,6 @@ public class AI : MonoBehaviour
                 }
             }
         }
-        Debug.Log("AI : " + (posX - initialPosX - 1) + "," + (posY - initialPosY));
         if (world.GetRoom(posX - initialPosX - 1, posY - initialPosY) == null)
         {
             for (int i = posX - 1; i >= 0; i--)
@@ -455,7 +461,6 @@ public class AI : MonoBehaviour
                 }
             }
         }
-        Debug.Log("AI : " + (posX - initialPosX) + "," + (posY - initialPosY + 1));
         if (world.GetRoom(posX - initialPosX, posY - initialPosY + 1) == null)
         {
             for (int i = 0; i < memorySize; i++)
@@ -466,7 +471,6 @@ public class AI : MonoBehaviour
                 }
             }
         }
-        Debug.Log("AI : " + (posX - initialPosX) + "," + (posY - initialPosY - 1));
         if (world.GetRoom(posX - initialPosX, posY - initialPosY - 1) == null)
         {
             for (int i = 0; i < memorySize; i++)

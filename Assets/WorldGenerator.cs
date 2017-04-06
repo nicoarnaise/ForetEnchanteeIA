@@ -147,7 +147,6 @@ public class WorldGenerator : MonoBehaviour
     {
         if ((int)startPosition.x + x < 0 || (int)startPosition.x + x >= levelSize || (int)startPosition.y + y < 0 || (int)startPosition.y + y >= levelSize)
             return null;
-        Debug.Log((startPosition.x) + "," + (startPosition.y));
         return level[(int)startPosition.x + x, (int)startPosition.y + y];
     }
 
