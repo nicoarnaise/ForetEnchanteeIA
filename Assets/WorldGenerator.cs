@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WorldGenerator : MonoBehaviour
 {
@@ -22,6 +23,7 @@ public class WorldGenerator : MonoBehaviour
     public GameObject exitObj;
     public GameObject startObj;
     public GameObject AIObj;
+    public Button PlayButton;
 
     public int levelSize;
     //public Data data;
@@ -125,7 +127,8 @@ public class WorldGenerator : MonoBehaviour
                 if (instantiatedObject == 0)
                 {
                     startPosition = new Vector2(x, y);
-                    Instantiate(AIObj, new Vector3(x, y, 0), transform.rotation, transform.parent);
+                    GameObject pTemp = Instantiate(AIObj, new Vector3(x, y, 0), transform.rotation, transform.parent);
+                    PlayButton.onClick.AddListener(() => pTemp.GetComponent<AI>().Play());
                 }    
                 level[x, y] = toAdd;
                 Instantiate(toInstantiate, new Vector3(x, y, 0), transform.rotation, transform.parent);

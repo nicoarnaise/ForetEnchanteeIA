@@ -50,17 +50,19 @@ public class AI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        
     }
 
     public void Play()
     {
-        if (isActionFinished)
+        //Debug.Log(isActionFinished);
+        if (actionList.Count == 0)
         {
             isActionFinished = false;
             SetBeliefs(); // Pourcentage of possibilities
             actionList = FindClosestRoomPath(FindHighScoredRooms()); // List of Rooms to visit
         }
+        Debug.Log(actionList.Count);
         MakeAction(actionList); // Action taken over the rooms to visit
     }
 
@@ -330,6 +332,7 @@ public class AI : MonoBehaviour
     private List<Vector2> FindClosestRoomPath(List<Vector2> eligibleRooms)
     {
         List<Vector2> identicalRooms = new List<Vector2>();
+        Debug.Log(world);
         int potentialRoomSize = (world.levelSize * 2 - 1) * (world.levelSize * 2 - 1);
         int nbLine = (int)Mathf.Sqrt(potentialRoomSize);
         int lineRoot = nbLine / 2;
@@ -495,7 +498,6 @@ public class AI : MonoBehaviour
         if (knownLevel[posX, posY].Count > 1)
         {
             knownLevel[posX, posY].Clear();
-            Debug.Log((initialPosX) + "," + (initialPosY));
             knownLevel[posX, posY].Add(world.GetRoom(posX -initialPosX, posY-initialPosY), 1);
             numberRoomLeft--;
         }
