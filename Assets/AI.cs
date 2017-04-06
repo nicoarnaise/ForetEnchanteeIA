@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,19 +16,17 @@ public class AI : MonoBehaviour
     private float monsterThreshold = 0.7f;
     private float emptyRoomScore = 0.0f;
     private int numberRoomLeft;
-    private bool isActionFinished;
     private List<Vector2> actionList;
 
     private void Awake()
     {
         world = FindObjectOfType<WorldGenerator>();
-        memorySize = world.levelSize * 2 + 1;
-        posX = memorySize / 2 + 1;
-        posY = memorySize / 2 + 1;
-        initialPosX = posX;
-        initialPosY = posY;
+        memorySize = world.levelSize * 2 - 1;
+        initialPosX = memorySize / 2 ;
+        initialPosY = memorySize / 2 ;
+        posX = initialPosX;
+        posY = initialPosY;
         numberRoomLeft = world.levelSize * world.levelSize;
-        isActionFinished = true;
         actionList = new List<Vector2>();
 
         knownLevel = new Dictionary<Room, float>[memorySize, memorySize];
@@ -57,7 +54,7 @@ public class AI : MonoBehaviour
     {
         if (actionList.Count == 0)
         {
-            isActionFinished = false;
+            Debug.Log("ResetBeliefs");
             SetBeliefs(); // Pourcentage of possibilities
             actionList = FindClosestRoomPath(FindHighScoredRooms()); // List of Rooms to visit
         }
@@ -66,24 +63,21 @@ public class AI : MonoBehaviour
 
     private void MakeAction(List<Vector2> rooms)
     {
-        List<Vector2> auxRooms = rooms;
-        if (auxRooms.Count > 1)
+        List<Vector2> auxRooms = new List<Vector2>();
+        for (int i=0; i< rooms.Count; i++)
+        {
+            auxRooms.Add(new Vector2(rooms[i].x + posX - initialPosX, rooms[i].y + posY - initialPosY));
+        }
+
+        if (rooms.Count > 1)
         {
             MakeMove(auxRooms[0]);
-            auxRooms.RemoveAt(0);
+            rooms.RemoveAt(0);
         }
-        if (auxRooms.Count == 1)
+        else if (rooms.Count == 1)
         {
-            int line = (int)auxRooms[0].x;
-            int column = (int)auxRooms[0].y;
-
-            int potentialRoomSize = (world.levelSize * 2 - 1) * (world.levelSize * 2 - 1);
-            int nbLine = (int)Mathf.Sqrt(potentialRoomSize);
-            int lineRoot = nbLine / 2;
-
-            int coordX = line + (memorySize / 2) - lineRoot;
-            int coordY = column + (memorySize / 2) - lineRoot;
-
+            int coordX = (int)auxRooms[0].x;
+            int coordY = (int)auxRooms[0].y;
             foreach (Room room in knownLevel[coordX, coordY].Keys)
             {
                 float roomChance = 0f;
@@ -95,12 +89,12 @@ public class AI : MonoBehaviour
                         {
                             ThrowRock(new Vector2(coordX, coordY));
                         }
-                    }
-                    else
-                    {
-                        MakeMove(auxRooms[0]);
-                        auxRooms.RemoveAt(0);
-                        isActionFinished = true;
+                        else
+                        {
+                            MakeMove(auxRooms[0]);
+                            rooms.RemoveAt(0);
+                            break;
+                        }
                     }
                 }
             }
@@ -143,6 +137,8 @@ public class AI : MonoBehaviour
 
     private bool IsEligible(int i, int j)
     {
+        if (i < 0 || i >= memorySize || j < 0 || j >= memorySize)
+            return false;
         if (knownLevel[i, j].Count == 1)
             return false;
         if (knownLevel[i, j].Count == 0)
@@ -248,13 +244,25 @@ public class AI : MonoBehaviour
         int count = 4;
         // count == -1 => no danger possible
         // count == 5 => fully filled predictor => danger in this room
-        count = majPredictorsCount(i - 1, j, room, count);
-        if (count == -1 || count == 5) return count;
-        count = majPredictorsCount(i + 1, j, room, count);
-        if (count == -1 || count == 5) return count;
-        count = majPredictorsCount(i, j - 1, room, count);
-        if (count == -1 || count == 5) return count;
-        count = majPredictorsCount(i, j + 1, room, count);
+        if(i-1 > 0)
+        {
+            count = majPredictorsCount(i - 1, j, room, count);
+            if (count == -1 || count == 5) return count;
+        }
+        if(i+1 < memorySize)
+        {
+            count = majPredictorsCount(i + 1, j, room, count);
+            if (count == -1 || count == 5) return count;
+        }
+        if(j-1 > 0)
+        {
+            count = majPredictorsCount(i, j - 1, room, count);
+            if (count == -1 || count == 5) return count;
+        }
+        if(j+1 < memorySize)
+        {
+            count = majPredictorsCount(i, j + 1, room, count);
+        }
 
         return count;
     }
@@ -312,6 +320,7 @@ public class AI : MonoBehaviour
         return count;
     }
 
+    /* Fonctionnement Validé */
     private List<Vector2> FindHighScoredRooms()
     {
         Dictionary<Room, float>[,] goodRooms = (Dictionary < Room, float>[,]) GetEligibleRooms().Clone();
@@ -324,7 +333,6 @@ public class AI : MonoBehaviour
                 if (goodRooms[i, j]!=null)
                 {
                     float score = GetScoreOfCase(goodRooms[i, j]);
-                    Debug.Log(score);
                     if (score >= actualMaxScore)
                     {
                         if (score > actualMaxScore)
@@ -341,18 +349,18 @@ public class AI : MonoBehaviour
     private List<Vector2> FindClosestRoomPath(List<Vector2> eligibleRooms)
     {
         List<Vector2> identicalRooms = new List<Vector2>();
-        int potentialRoomSize = (world.levelSize * 2 - 1) * (world.levelSize * 2 - 1);
-        int nbLine = (int)Mathf.Sqrt(potentialRoomSize);
-        int lineRoot = nbLine / 2;
+        int potentialRoomSize = memorySize * memorySize;
+        int nbLine = memorySize;
+        int lineRoot = nbLine/2;
 
         Node root = new Node(potentialRoomSize / 2, lineRoot, lineRoot, 0);
 
         int[] potentialRooms = new int[potentialRoomSize];
         for (int i = 0; i < potentialRoomSize; i++)
         {
-            int coordX = (i / nbLine) + (memorySize / 2) - lineRoot;
-            int coordY = (i % nbLine) + (memorySize / 2) - lineRoot;
-            if (knownLevel[coordX, coordY].Count == 1 || eligibleRooms.Contains(new Vector2(coordX, coordY)))
+            int coordX = (i % nbLine) + posX - initialPosX;
+            int coordY = (i / nbLine) + posY - initialPosY;
+            if (knownLevel[i % nbLine, i / nbLine].Count == 1 || eligibleRooms.Contains(new Vector2(coordX, coordY)))
             {
                 potentialRooms[i] = 1;
             }
@@ -361,7 +369,7 @@ public class AI : MonoBehaviour
                 potentialRooms[i] = 10000;
             }
         }
-        identicalRooms = Disjtra(new Graph(potentialRooms, (world.levelSize * 2 - 1) * (world.levelSize * 2 - 1), root));
+        identicalRooms = Disjtra(new Graph(potentialRooms, potentialRoomSize, root));
         return identicalRooms;
     }
 
@@ -433,7 +441,7 @@ public class AI : MonoBehaviour
 
     private void Move()
     {
-        Data.score += Data.moveScore;
+        Data.addScore(Data.moveScore);
         CheckForBorder();
         UpdateCurrentState();
         CheckStatut();
@@ -486,7 +494,7 @@ public class AI : MonoBehaviour
     private void ThrowRock(Vector2 direction)
     {
         world.TryKillMonsterAt(posX - initialPosX + (int)direction.x, posY - initialPosY + (int)direction.y);
-        Data.score += Data.rockScore;
+        Data.addScore(Data.rockScore);
         Room toRemove = null;
         foreach (Room item in knownLevel[posX + (int)direction.x, posY + (int)direction.y].Keys)
         {
@@ -512,16 +520,20 @@ public class AI : MonoBehaviour
     {
         if (knownLevel[posX, posY].Count == 1)
         {
-            if ((knownLevel[posX, posY].Keys.GetEnumerator().Current is Hole || knownLevel[posX, posY].Keys.GetEnumerator().Current is Monster))
-                Die();
-            if (knownLevel[posX, posY].Keys.GetEnumerator().Current is Exit)
-                CompleteLevel();
+            foreach (Room val in knownLevel[posX, posY].Keys)
+            {
+                if ((val is Hole || val is Monster))
+                    Die();
+                if (val is Exit)
+                    CompleteLevel();
+            }
         }
     }
 
     private void Die()
     {
-        Data.score += Data.deathScore;
+        Debug.Log("Die");
+        Data.addScore(Data.deathScore);
         posX = initialPosX;
         posY = initialPosY;
         transform.position = initialPosition;
@@ -529,7 +541,8 @@ public class AI : MonoBehaviour
 
     private void CompleteLevel()
     {
-        Data.score += Data.exitScore;
+        Debug.Log("CompleteLevel");
+        Data.addScore(Data.exitScore);
         Data.IncreaseLevel();
         UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex, UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
@@ -539,8 +552,8 @@ public class AI : MonoBehaviour
     {
         List<Vector2> optimalPath = new List<Vector2>();
         List<Node> remainingNodes = G.graphNodes;
-        Node sdeb = remainingNodes[0];
-        Node sfin = remainingNodes[G.graphNodes.Count - 1];
+        Node sdeb = G.root;
+        Node sfin = remainingNodes[remainingNodes.Count - 1];
 
         while (remainingNodes.Count > 0)
         {
@@ -550,8 +563,9 @@ public class AI : MonoBehaviour
             {
                 updateScores(s1, s1.arcs[i].finish);
             }
-            if (IsEligible(s1.line, s1.column))
+            if (IsEligible(s1.column + posX - initialPosX, s1.line + posY - initialPosY))
             {
+                Debug.Log((s1.column + posX - initialPosX) + "," + (s1.line + posY - initialPosY));
                 sfin = s1;
                 break;
             }
@@ -560,10 +574,10 @@ public class AI : MonoBehaviour
         Node s = sfin;
         while (s != sdeb)
         {
-            optimalPath.Add(new Vector3(s.line, s.column));
+            Debug.Log("Number action list : " + optimalPath.Count);
+            optimalPath.Add(new Vector2(s.column, s.line));
             s = s.father;
         }
-
         return optimalPath;
     }
 
@@ -600,7 +614,7 @@ public class AI : MonoBehaviour
             }
         }
 
-        if (s2.score > newScore)
+        if (s2.score >= newScore)
         {
             s2.score = newScore;
             s2.father = s1;

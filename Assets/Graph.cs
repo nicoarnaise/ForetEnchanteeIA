@@ -23,7 +23,6 @@ public class Graph {
 		for (int i = 0; i < nbrooms; i++) {
 			this.tabEligible [i] = tab [i];
 		}
-		graphNodes.Add (root);
 		createGraph ();
 	}
 
@@ -33,8 +32,12 @@ public class Graph {
 		for (int i = 0; i < nbrooms; i++) {
 
 			if (i != nbrooms/2) {
-				graphNodes.Add (new Node (i, i / nbLine, i % nbLine, int.MaxValue));
+				graphNodes.Add (new Node (i, i / nbLine, i % nbLine, tabEligible[i]));
 			}
+            else
+            {
+                graphNodes.Add(root);
+            }
 		}
 
 		for (int i = 0; i < nbrooms; i++) {
