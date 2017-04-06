@@ -44,7 +44,6 @@ public class Graph {
 				node.addArc (graphNodes [node.id+nbLine], tabEligible[node.id+nbLine]);
 			}
 			if (node.line != 0) {
-				Debug.Log (node.id);
 				node.addArc (graphNodes [node.id-nbLine], tabEligible[node.id-nbLine]);
 			}
 			if (node.column != nbLine - 1 ) {

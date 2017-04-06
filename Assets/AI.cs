@@ -13,7 +13,7 @@ public class AI : MonoBehaviour
     public int posX;
     public int posY;
     private WorldGenerator world;
-    private int memorySize = int.MaxValue;
+    private int memorySize;
     private float monsterThreshold = 0.7f;
     private float emptyRoomScore = 0.0f;
     private int numberRoomLeft;
@@ -495,7 +495,8 @@ public class AI : MonoBehaviour
         if (knownLevel[posX, posY].Count > 1)
         {
             knownLevel[posX, posY].Clear();
-            knownLevel[posX, posY].Add(world.GetRoom(posX - initialPosX, posY - initialPosY), 1);
+            Debug.Log((initialPosX) + "," + (initialPosY));
+            knownLevel[posX, posY].Add(world.GetRoom(posX -initialPosX, posY-initialPosY), 1);
             numberRoomLeft--;
         }
     }

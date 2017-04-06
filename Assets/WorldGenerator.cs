@@ -21,6 +21,8 @@ public class WorldGenerator : MonoBehaviour
 
     public GameObject exitObj;
     public GameObject startObj;
+    public GameObject AIObj;
+
     public int levelSize;
     //public Data data;
     public Room[,] level;
@@ -121,7 +123,10 @@ public class WorldGenerator : MonoBehaviour
                 GameObject toInstantiate = instantiatedObject == 0 ? startObj : exitObj /*Exit*/;
                 System.Console.Out.WriteLine(toInstantiate.ToString());
                 if (instantiatedObject == 0)
+                {
                     startPosition = new Vector2(x, y);
+                    Instantiate(AIObj, new Vector3(x, y, 0), transform.rotation, transform.parent);
+                }    
                 level[x, y] = toAdd;
                 Instantiate(toInstantiate, new Vector3(x, y, 0), transform.rotation, transform.parent);
                 instantiatedObject++;
