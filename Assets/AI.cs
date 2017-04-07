@@ -13,7 +13,7 @@ public class AI : MonoBehaviour
     public int posY;
     private WorldGenerator world;
     private int memorySize;
-    private float monsterThreshold = 0.7f;
+    private float monsterThreshold = 0.6f;
     private float emptyRoomScore = 0.0f;
     private int numberRoomLeft;
     private List<Vector2> actionList;
@@ -78,7 +78,9 @@ public class AI : MonoBehaviour
         {
             int coordX = (int)auxRooms[0].x;
             int coordY = (int)auxRooms[0].y;
-            foreach (Room room in knownLevel[coordX, coordY].Keys)
+            Room[] keys = new Room[knownLevel[coordX, coordY].Count]; 
+            knownLevel[coordX, coordY].Keys.CopyTo(keys,0);
+            foreach (Room room in keys)
             {
                 float roomChance = 0f;
                 if (knownLevel[coordX, coordY].TryGetValue(room, out roomChance))
@@ -87,7 +89,7 @@ public class AI : MonoBehaviour
                     {
                         if (roomChance > monsterThreshold)
                         {
-                            ThrowRock(new Vector2(coordX, coordY));
+                            ThrowRock(new Vector2(coordX-posX, coordY-posY));
                         }
                         else
                         {
@@ -348,19 +350,17 @@ public class AI : MonoBehaviour
 
     private List<Vector2> FindClosestRoomPath(List<Vector2> eligibleRooms)
     {
-        List<Vector2> identicalRooms = new List<Vector2>();
         int potentialRoomSize = memorySize * memorySize;
         int nbLine = memorySize;
         int lineRoot = nbLine/2;
-
-        Node root = new Node(potentialRoomSize / 2, lineRoot, lineRoot, 0);
 
         int[] potentialRooms = new int[potentialRoomSize];
         for (int i = 0; i < potentialRoomSize; i++)
         {
             int coordX = (i % nbLine) + posX - initialPosX;
             int coordY = (i / nbLine) + posY - initialPosY;
-            if (knownLevel[i % nbLine, i / nbLine].Count == 1 || eligibleRooms.Contains(new Vector2(coordX, coordY)))
+            bool checkCoord = coordX > 0 && coordY > 0 && coordX < memorySize && coordY < memorySize;
+            if (checkCoord && (knownLevel[coordX, coordY].Count == 1 || eligibleRooms.Contains(new Vector2(coordX, coordY))))
             {
                 potentialRooms[i] = 1;
             }
@@ -369,8 +369,23 @@ public class AI : MonoBehaviour
                 potentialRooms[i] = 10000;
             }
         }
-        identicalRooms = Disjtra(new Graph(potentialRooms, potentialRoomSize, root));
-        return identicalRooms;
+        int minLength = int.MaxValue;
+        List<Vector2> minPath = new List<Vector2>();
+        foreach (Vector2 eligibleRoom in eligibleRooms)
+        {
+            int length = int.MaxValue;
+            List<Vector2> path = new List<Vector2>();
+            int endCol = (int)eligibleRoom.x - (posX - initialPosX);
+            int endLine = (int)eligibleRoom.y - (posY - initialPosY);
+            int endId = endLine * nbLine + endCol;
+            path = Disjtra(new Graph(potentialRooms, potentialRoomSize), potentialRoomSize / 2, endId, out length);
+            if (length < minLength)
+            {
+                minLength = length;
+                minPath = path;
+            }
+        }
+        return minPath;
     }
 
 
@@ -548,36 +563,29 @@ public class AI : MonoBehaviour
     }
 
 
-    public List<Vector2> Disjtra(Graph G)
+    public List<Vector2> Disjtra(Graph G, int idRoot, int idEnd, out int length)
     {
         List<Vector2> optimalPath = new List<Vector2>();
+        G.graphNodes[idRoot].score = 0;
         List<Node> remainingNodes = G.graphNodes;
-        Node sdeb = G.root;
-        Node sfin = remainingNodes[remainingNodes.Count - 1];
-
+        Node sdeb = remainingNodes[idRoot];
+        Node sfin = remainingNodes[idEnd];
+        int pathLength = 0;
         while (remainingNodes.Count > 0)
         {
             Node s1 = findminScore(remainingNodes);
             remainingNodes.Remove(s1);
-            for (int i = 0; i < s1.arcs.Count; i++)
-            {
-                updateScores(s1, s1.arcs[i].finish);
-            }
-            if (IsEligible(s1.column + posX - initialPosX, s1.line + posY - initialPosY))
-            {
-                Debug.Log((s1.column + posX - initialPosX) + "," + (s1.line + posY - initialPosY));
-                sfin = s1;
-                break;
-            }
+            updateScores(s1);
         }
 
         Node s = sfin;
         while (s != sdeb)
         {
-            Debug.Log("Number action list : " + optimalPath.Count);
             optimalPath.Add(new Vector2(s.column, s.line));
             s = s.father;
+            pathLength++;
         }
+        length = pathLength;
         return optimalPath;
     }
 
@@ -600,24 +608,18 @@ public class AI : MonoBehaviour
         return minNode;
     }
 
-    public void updateScores(Node s1, Node s2)
+    public void updateScores(Node s1)
     {
-        int newScore = int.MaxValue;
         List<Arc> arcs = s1.arcs;
 
-        for (int i = 0; i < arcs.Count; i++)
+        foreach(Arc arc in arcs)
         {
-            if (arcs[i].finish == s2)
+            int newScore = s1.score + arc.weight;
+            if(arc.finish.score > newScore)
             {
-                newScore = s1.score + arcs[i].weight;
-                break;
+                arc.finish.score = newScore;
+                arc.finish.father = s1;
             }
-        }
-
-        if (s2.score >= newScore)
-        {
-            s2.score = newScore;
-            s2.father = s1;
         }
     }
 }

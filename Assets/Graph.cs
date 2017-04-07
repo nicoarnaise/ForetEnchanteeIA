@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Graph {
 
-	public Node root;
 	public int nbrooms;
 	public int[] tabEligible;
 
@@ -14,8 +13,7 @@ public class Graph {
 	public List<Node> graphNodes;
 
 
-	public Graph(int[] tab, int nbrooms, Node r){
-		root = r;
+	public Graph(int[] tab, int nbrooms){
 		this.nbrooms = nbrooms;
 		graphNodes = new List<Node> ();
 		this.tabEligible = new int[nbrooms];
@@ -30,14 +28,7 @@ public class Graph {
 	public void createGraph(){
 		int nbLine = ((int)Mathf.Sqrt (nbrooms));
 		for (int i = 0; i < nbrooms; i++) {
-
-			if (i != nbrooms/2) {
-				graphNodes.Add (new Node (i, i / nbLine, i % nbLine, tabEligible[i]));
-			}
-            else
-            {
-                graphNodes.Add(root);
-            }
+			graphNodes.Add (new Node (i, i / nbLine, i % nbLine, int.MaxValue));
 		}
 
 		for (int i = 0; i < nbrooms; i++) {
