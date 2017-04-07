@@ -162,7 +162,9 @@ public class WorldGenerator : MonoBehaviour
             {
                 for(int j = -1; j<2; j += 2)
                 {
-                    level[toKillX + i, toKillY + j].hasPoop = false;
+					if (toKillX + i > 0 && toKillX + i < levelSize && toKillY + j > 0 && toKillY + j < levelSize) {
+						level [toKillX + i, toKillY + j].hasPoop = false;
+					}
                 }
             }
             level[toKillX, toKillY] = new Room(level[toKillX, toKillY]);
