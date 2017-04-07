@@ -63,13 +63,7 @@ public class AI : MonoBehaviour
 
     private void MakeAction(List<Vector2> rooms)
     {
-        if (rooms.Count > 1)
-        {
-            MakeMove(rooms[0]);
-			Debug.Log ("rooms.0 ? " + rooms[0]);
-            rooms.RemoveAt(0);
-        }
-        else if (rooms.Count == 1)
+        if (rooms.Count > 0)
         {
             int coordX = (int)rooms[0].x;
             int coordY = (int)rooms[0].y;
@@ -79,24 +73,45 @@ public class AI : MonoBehaviour
             knownLevel[coordX, coordY].Keys.CopyTo(keys,0);
             foreach (Room room in keys)
             {
-                float roomChance = 0f;
-                if (knownLevel[coordX, coordY].TryGetValue(room, out roomChance))
+                if(knownLevel[coordX,coordY].Count == 1)
                 {
-                    if (room is Monster)
+                    if(room is Monster)
                     {
-                        if (roomChance > monsterThreshold)
-                        {
-                            ThrowRock(new Vector2(coordX-posX, coordY-posY));
-                        }
-                        else
-                        {
-                            MakeMove(rooms[0]);
-							Debug.Log ("rooms.0 ? " + rooms[0]);
+                        ThrowRock(new Vector2(coordX - posX, coordY - posY));
+                        break;
+                    }
+                    else
+                    {
+                        Debug.Log("rooms.0 ? " + rooms[0]);
+                        MakeMove(rooms[0]);
+                        if (rooms.Count > 0)
                             rooms.RemoveAt(0);
-                            break;
+                    }
+                }
+                else
+                {
+                    float roomChance = 0f;
+                    if (knownLevel[coordX, coordY].TryGetValue(room, out roomChance))
+                    {
+                        if (room is Monster)
+                        {
+                            if (roomChance > monsterThreshold)
+                            {
+                                ThrowRock(new Vector2(coordX-posX, coordY-posY));
+                                break;
+                            }
+                            else
+                            {
+							    Debug.Log ("rooms.0 ? " + rooms[0]);
+                                MakeMove(rooms[0]);
+                                if(rooms.Count > 0)
+                                    rooms.RemoveAt(0);
+                                break;
+                            }
                         }
                     }
                 }
+                
             }
         }
     }
@@ -171,6 +186,7 @@ public class AI : MonoBehaviour
             {
                 if (IsEligible(i, j))
                 {
+                    Debug.Log("Reset beliefs");
                     SetProbabilities(i, j);
                 }
             }
@@ -357,13 +373,38 @@ public class AI : MonoBehaviour
         {
             int coordX = (i % nbLine);
             int coordY = (i / nbLine);
-            if (knownLevel[coordX, coordY].Count == 1 || eligibleRooms.Contains(new Vector2(coordX, coordY)))
+            bool checkSafe = false;
+            if(knownLevel[coordX,coordY].Count == 1)
+            {
+                foreach(Room r in knownLevel[coordX, coordY].Keys)
+                {
+                    checkSafe = r is EmptyRoom;
+                }
+            }
+            if (checkSafe || eligibleRooms.Contains(new Vector2(coordX, coordY)))
             {
                 potentialRooms[i] = 1;
             }
-            else
+            else if(knownLevel[coordX,coordY].Count > 1)
             {
                 potentialRooms[i] = 10000;
+            }
+            else
+            {
+                if(knownLevel[coordX,coordY].Count == 0)
+                {
+                    potentialRooms[i] = 1000000000;
+                }
+                else
+                {
+                    foreach (Room r in knownLevel[coordX, coordY].Keys)
+                    {
+                        if (r is Monster)
+                            potentialRooms[i] = 1000000;
+                        if (r is Hole)
+                            potentialRooms[i] = 100000000;
+                    }
+                }
             }
         }
         int minLength = int.MaxValue;
@@ -385,6 +426,7 @@ public class AI : MonoBehaviour
                 minPath = path;
             }
         }
+        Debug.Log("ActionList Count : " + minPath.Count);
         return minPath;
     }
 
@@ -518,6 +560,10 @@ public class AI : MonoBehaviour
                 toRemove = item;
             }
         }
+        if (knownLevel[posX + (int)direction.x, posY + (int)direction.y].Count == 0)
+        {
+            knownLevel[posX + (int)direction.x, posY + (int)direction.y].Add(world.GetRoom(posX + (int)direction.x - initialPosX, posY + (int)direction.y - initialPosY), 1);
+        }
         knownLevel[posX + (int)direction.x, posY + (int)direction.y].Remove(toRemove);
     }
 
@@ -582,7 +628,7 @@ public class AI : MonoBehaviour
         Node s = sfin;
         while (s != sdeb)
         {
-            optimalPath.Add(new Vector2(s.column, s.line));
+            optimalPath.Insert(0,new Vector2(s.column, s.line));
             s = s.father;
             pathLength++;
         }

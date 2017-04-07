@@ -79,12 +79,12 @@ public class WorldGenerator : MonoBehaviour
                 if ((int)position.x + i >= 0 && (int)position.x + i < levelSize)
                 {
                     level[(int)position.x + i, (int)position.y].AddPoop();
-                    Instantiate(poopObj, new Vector3(position.x + i, position.y, 0), transform.rotation, transform.parent);
+                    Instantiate(poopObj, new Vector3(position.x + i, position.y, 0), transform.rotation, levelObjects[(int)position.x,(int)position.y].transform);
                 }
                 if ((int)position.y + i >= 0 && (int)position.y + i < levelSize)
                 {
                     level[(int)position.x, (int)position.y + i].AddPoop();
-                    Instantiate(poopObj, new Vector3(position.x, position.y + i, 0), transform.rotation, transform.parent);
+                    Instantiate(poopObj, new Vector3(position.x, position.y + i, 0), transform.rotation, levelObjects[(int)position.x, (int)position.y].transform);
                 }
             }
         }
@@ -152,12 +152,20 @@ public class WorldGenerator : MonoBehaviour
 
     public void TryKillMonsterAt(int x, int y)
     {
-        if (level[(int)startPosition.x + x, (int)startPosition.y + y] is Monster)
+        int toKillX = (int)startPosition.x + x;
+        int toKillY = (int)startPosition.y + y;
+        if (level[toKillX, toKillY] is Monster)
         {
-            GameObject tmp = levelObjects[(int)startPosition.x + x, (int)startPosition.y + y];
-            levelObjects[(int)startPosition.x + x, (int)startPosition.y + y] = Instantiate(emptyRoomObj, tmp.transform.position, tmp.transform.rotation, tmp.transform.parent);
-            DestroyImmediate(tmp);
-            level[(int)startPosition.x + x, (int)startPosition.y + y] = new Room(level[(int)startPosition.x + x, (int)startPosition.y + y]);
+            GameObject tmp = levelObjects[toKillX, toKillY];
+            levelObjects[toKillX, toKillY] = Instantiate(emptyRoomObj, tmp.transform.position, tmp.transform.rotation, tmp.transform.parent);
+            for (int i = -1; i<2; i += 2)
+            {
+                for(int j = -1; j<2; j += 2)
+                {
+                    level[toKillX + i, toKillY + j].hasPoop = false;
+                }
+            }
+            level[toKillX, toKillY] = new Room(level[toKillX, toKillY]);
         }
     }
 }
