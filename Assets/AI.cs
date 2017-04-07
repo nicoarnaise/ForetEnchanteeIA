@@ -63,22 +63,16 @@ public class AI : MonoBehaviour
 
     private void MakeAction(List<Vector2> rooms)
     {
-        List<Vector2> auxRooms = new List<Vector2>();
-        for (int i=0; i< rooms.Count; i++)
-        {
-            auxRooms.Add(new Vector2(rooms[i].x + posX - initialPosX, rooms[i].y + posY - initialPosY));
-        }
-
         if (rooms.Count > 1)
         {
-            MakeMove(auxRooms[0]);
-			Debug.Log ("rooms.0 ? " + rooms [0]);
+            MakeMove(rooms[0]);
+			Debug.Log ("rooms.0 ? " + rooms[0]);
             rooms.RemoveAt(0);
         }
         else if (rooms.Count == 1)
         {
-            int coordX = (int)auxRooms[0].x;
-            int coordY = (int)auxRooms[0].y;
+            int coordX = (int)rooms[0].x;
+            int coordY = (int)rooms[0].y;
             Room[] keys = new Room[knownLevel[coordX, coordY].Count]; 
 			Debug.Log ("Next room Coordinates : " + "X : " + coordX + " Y : " + coordY);
 			Debug.Log ("how many keys in the next room ? : " + keys.Length);
@@ -96,8 +90,8 @@ public class AI : MonoBehaviour
                         }
                         else
                         {
-                            MakeMove(auxRooms[0]);
-							Debug.Log ("rooms.0 ? " + rooms [0]);
+                            MakeMove(rooms[0]);
+							Debug.Log ("rooms.0 ? " + rooms[0]);
                             rooms.RemoveAt(0);
                             break;
                         }
@@ -357,15 +351,13 @@ public class AI : MonoBehaviour
 		Debug.Log ("FCRP : eligibleRooms Count : " + eligibleRooms.Count);
         int potentialRoomSize = memorySize * memorySize;
         int nbLine = memorySize;
-        int lineRoot = nbLine/2;
 
         int[] potentialRooms = new int[potentialRoomSize];
         for (int i = 0; i < potentialRoomSize; i++)
         {
-            int coordX = (i % nbLine) + posX - initialPosX;
-            int coordY = (i / nbLine) + posY - initialPosY;
-            bool checkCoord = coordX > 0 && coordY > 0 && coordX < memorySize && coordY < memorySize;
-            if (checkCoord && (knownLevel[coordX, coordY].Count == 1 || eligibleRooms.Contains(new Vector2(coordX, coordY))))
+            int coordX = (i % nbLine);
+            int coordY = (i / nbLine);
+            if (knownLevel[coordX, coordY].Count == 1 || eligibleRooms.Contains(new Vector2(coordX, coordY)))
             {
                 potentialRooms[i] = 1;
             }
@@ -380,10 +372,13 @@ public class AI : MonoBehaviour
         {
             int length = int.MaxValue;
             List<Vector2> path = new List<Vector2>();
-            int endCol = (int)eligibleRoom.x - (posX - initialPosX);
-            int endLine = (int)eligibleRoom.y - (posY - initialPosY);
+            int rootCol = posX;
+            int rootLine = posY;
+            int rootId = rootLine * nbLine + rootCol;
+            int endCol = (int)eligibleRoom.x;
+            int endLine = (int)eligibleRoom.y;
             int endId = endLine * nbLine + endCol;
-            path = Disjtra(new Graph(potentialRooms, potentialRoomSize), potentialRoomSize / 2, endId, out length);
+            path = Disjtra(new Graph(potentialRooms, potentialRoomSize), rootId, endId, out length);
             if (length < minLength)
             {
                 minLength = length;
