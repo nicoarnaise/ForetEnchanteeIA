@@ -52,9 +52,9 @@ public class AI : MonoBehaviour
 
     public void Play()
     {
+		Debug.Log ("ActionList Count : " + actionList.Count);
         if (actionList.Count == 0)
         {
-            Debug.Log("ResetBeliefs");
             SetBeliefs(); // Pourcentage of possibilities
             actionList = FindClosestRoomPath(FindHighScoredRooms()); // List of Rooms to visit
         }
@@ -72,6 +72,7 @@ public class AI : MonoBehaviour
         if (rooms.Count > 1)
         {
             MakeMove(auxRooms[0]);
+			Debug.Log ("rooms.0 ? " + rooms [0]);
             rooms.RemoveAt(0);
         }
         else if (rooms.Count == 1)
@@ -79,6 +80,8 @@ public class AI : MonoBehaviour
             int coordX = (int)auxRooms[0].x;
             int coordY = (int)auxRooms[0].y;
             Room[] keys = new Room[knownLevel[coordX, coordY].Count]; 
+			Debug.Log ("Next room Coordinates : " + "X : " + coordX + " Y : " + coordY);
+			Debug.Log ("how many keys in the next room ? : " + keys.Length);
             knownLevel[coordX, coordY].Keys.CopyTo(keys,0);
             foreach (Room room in keys)
             {
@@ -94,6 +97,7 @@ public class AI : MonoBehaviour
                         else
                         {
                             MakeMove(auxRooms[0]);
+							Debug.Log ("rooms.0 ? " + rooms [0]);
                             rooms.RemoveAt(0);
                             break;
                         }
@@ -350,6 +354,7 @@ public class AI : MonoBehaviour
 
     private List<Vector2> FindClosestRoomPath(List<Vector2> eligibleRooms)
     {
+		Debug.Log ("FCRP : eligibleRooms Count : " + eligibleRooms.Count);
         int potentialRoomSize = memorySize * memorySize;
         int nbLine = memorySize;
         int lineRoot = nbLine/2;
@@ -547,6 +552,7 @@ public class AI : MonoBehaviour
 
     private void Die()
     {
+		actionList.Clear ();
         Debug.Log("Die");
         Data.addScore(Data.deathScore);
         posX = initialPosX;
