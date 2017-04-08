@@ -32,7 +32,7 @@ public class AI : MonoBehaviour
 	/// <summary>
 	/// Value determining whether or not the Agent should throw a rock
 	/// </summary>
-    private float monsterThreshold = 0.6f;
+    private float monsterThreshold = 0.4f;
 
 	/// <summary>
 	/// Score given to a room where nothing should happen
@@ -101,15 +101,19 @@ public class AI : MonoBehaviour
     {
             int coordX = (int)rooms[0].x; // X coordinate of the room position
             int coordY = (int)rooms[0].y; // Y coordinate of the room position
+		Debug.Log("ActionList.Count : " + rooms.Count);
+		Debug.Log("coordX :" + coordX +"coordY : " + coordY);
+		Debug.Log ("keys :" + knownLevel [coordX, coordY].Count);
+
             Room[] keys = new Room[knownLevel[coordX, coordY].Count]; // Number of possibilities left for the room
 			
             knownLevel[coordX, coordY].Keys.CopyTo(keys,0); // Copy the different possibilities
 
-            foreach (Room room in keys) // According to each possibility
+            foreach (Room key in keys) // According to each possibility
             {
                 if(knownLevel[coordX,coordY].Count == 1) // Only one possibility 
                 {
-                    if(room is Monster) // And it's a monster
+                    if(key is Monster) // And it's a monster
                     {
                         ThrowRock(new Vector2(coordX - posX, coordY - posY)); // Throw a rock
                         break;
@@ -124,9 +128,9 @@ public class AI : MonoBehaviour
                 else // All possibilities are left 
                 {
                     float roomChance = 0f;
-                    if (knownLevel[coordX, coordY].TryGetValue(room, out roomChance))
+                    if (knownLevel[coordX, coordY].TryGetValue(key, out roomChance))
                     {
-                        if (room is Monster) // only this possibility matters because it will determine the next action
+                        if (key is Monster) // only this possibility matters because it will determine the next action
                         {
                             if (roomChance > monsterThreshold) // The probability of a monster is too high
                             {
@@ -448,6 +452,7 @@ public class AI : MonoBehaviour
                     checkSafe = r is EmptyRoom;
                 }
             }
+
             if (checkSafe || eligibleRooms.Contains(new Vector2(coordX, coordY))) // The room is empty or is one of the room with the highest score
             {
                 potentialRooms[i] = 1;
@@ -460,7 +465,7 @@ public class AI : MonoBehaviour
             {
                 if(knownLevel[coordX,coordY].Count == 0) // The room is not in the map
                 {
-                    potentialRooms[i] = 1000000000;
+					potentialRooms[i] = 1000000;
                 }
                 else
                 {
@@ -469,7 +474,7 @@ public class AI : MonoBehaviour
                         if (r is Monster)
                             potentialRooms[i] = 10000; // The room is a monster
                         if (r is Hole)
-                            potentialRooms[i] = 10000000; // The room is a Hole
+							potentialRooms[i] = 1000000; // The room is a Hole
                     }
                 }
             }
@@ -655,6 +660,7 @@ public class AI : MonoBehaviour
 	/// <param name="direction">Direction.</param>
     private void ThrowRock(Vector2 direction)
     {
+		Debug.Log ("Enter Throw Rock State");
 		// calls the world to change the real map
         world.TryKillMonsterAt(posX - initialPosX + (int)direction.x, posY - initialPosY + (int)direction.y);
 		Data.addScore(Data.rockScore); // Update the global score
@@ -666,13 +672,15 @@ public class AI : MonoBehaviour
                 toRemove = item; 
             }
         }
-
+		knownLevel[posX + (int)direction.x, posY + (int)direction.y].Remove(toRemove); // remove the monster possibility
         if (knownLevel[posX + (int)direction.x, posY + (int)direction.y].Count == 0) // if no possiblities left for the room
         {
             knownLevel[posX + (int)direction.x, posY + (int)direction.y].Add(world.GetRoom(posX + (int)direction.x - initialPosX, posY + (int)direction.y - initialPosY), 1); // Adds the empty room possibility
         }
-		knownLevel[posX + (int)direction.x, posY + (int)direction.y].Remove(toRemove); // remove the monster possibility
+		Debug.Log("Keys just right after rock : " + knownLevel[posX + (int)direction.x, posY + (int)direction.y].Count);
+
     }
+
 
 	/// <summary>
 	/// Updates the current room possibilities

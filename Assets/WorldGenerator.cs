@@ -133,7 +133,7 @@ public class WorldGenerator : MonoBehaviour
                 if (instantiatedObject == 0)
                 {
                     startPosition = new Vector2(x, y);
-                    GameObject pTemp = Instantiate(AIObj, new Vector3(x*roomSize, y*roomSize, 0), transform.rotation, transform.parent);
+                    GameObject pTemp = Instantiate(AIObj, new Vector3(x*roomSize, y*roomSize, -1), transform.rotation, transform.parent);
                     pTemp.transform.localScale = new Vector3(roomSize, roomSize, 1);
                     PlayButton.onClick.AddListener(() => pTemp.GetComponent<AI>().Play());
                 }    
@@ -163,8 +163,9 @@ public class WorldGenerator : MonoBehaviour
         int toKillY = (int)startPosition.y + y;
         if (level[toKillX, toKillY] is Monster)
         {
-            GameObject tmp = levelObjects[toKillX, toKillY];
-            levelObjects[toKillX, toKillY] = Instantiate(emptyRoomObj, tmp.transform.position, tmp.transform.rotation, tmp.transform.parent);
+			DestroyImmediate(levelObjects [toKillX, toKillY]);
+			levelObjects[toKillX, toKillY] = Instantiate(emptyRoomObj, new Vector3(toKillX*roomSize,toKillY*roomSize,0), Quaternion.identity, transform.parent);
+			levelObjects[toKillX, toKillY].transform.localScale = new Vector3(roomSize, roomSize, 1);
             for (int i = -1; i<2; i += 2)
             {
                 for(int j = -1; j<2; j += 2)
@@ -174,7 +175,10 @@ public class WorldGenerator : MonoBehaviour
 					}
                 }
             }
-            level[toKillX, toKillY] = new Room(level[toKillX, toKillY]);
+			EmptyRoom temp = new EmptyRoom();
+			temp.hasPoop = level [toKillX, toKillY].hasPoop;
+			temp.hasWind = level [toKillX, toKillY].hasWind;
+			level [toKillX, toKillY] = temp;
         }
     }
 }

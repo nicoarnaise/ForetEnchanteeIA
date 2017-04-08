@@ -34,17 +34,28 @@ public class Graph {
 		for (int i = 0; i < nbrooms; i++) {
 			Node node = graphNodes [i];
 
-			if (node.line != nbLine - 1) {
-				node.addArc (graphNodes [node.id+nbLine], tabEligible[node.id+nbLine]);
+			if (node.line < nbLine - 1) {
+				int id = node.id + nbLine;
+
+					node.addArc (graphNodes [id], tabEligible [id]);
+
 			}
-			if (node.line != 0) {
-				node.addArc (graphNodes [node.id-nbLine], tabEligible[node.id-nbLine]);
+			if (node.line > 0) {
+				int id = node.id - nbLine;
+					node.addArc (graphNodes [id], tabEligible [id]);
+
 			}
-			if (node.column != nbLine - 1 ) {
-				node.addArc(graphNodes[node.id+1],tabEligible[node.id+1]);
+			if (node.column < nbLine - 1 ) {
+				int id = node.id +1;
+				//if (tabEligible [id] != int.MaxValue) {
+					node.addArc (graphNodes [id], tabEligible [id]);
+				
 			}
-			if (node.column != 0) {
-				node.addArc (graphNodes [node.id-1], tabEligible[node.id-1]);
+			if (node.column > 0) {
+				int id = node.id - 1;
+				//if (tabEligible [id] != int.MaxValue) {
+					node.addArc (graphNodes [id], tabEligible [id]);
+
 			}
 
 		}
