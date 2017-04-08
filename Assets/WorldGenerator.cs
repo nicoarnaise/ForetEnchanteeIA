@@ -5,7 +5,8 @@ using UnityEngine.UI;
 
 public class WorldGenerator : MonoBehaviour
 {
-    public static int roomSize;
+
+    public int roomSize = 300;
 
     public GameObject emptyRoomObj;
 
@@ -36,7 +37,11 @@ public class WorldGenerator : MonoBehaviour
     {
         Room.poop = poopObj;
         Room.wind = windObj;
-        //data = FindObjectOfType<Data>();
+        //-move the camera--
+        int camXY = 300 + Data.Level * 150;
+        int camZ = -1000 - Data.Level * 300;
+        Camera.main.transform.position = new Vector3(camXY, camXY, camZ);
+        //------------------
         levelSize = 3 + Data.Level;
         level = new Room[levelSize, levelSize];
         levelObjects = new GameObject[levelSize, levelSize];
@@ -66,7 +71,9 @@ public class WorldGenerator : MonoBehaviour
                     }
                     else
                         level[i, j] = new EmptyRoom();
-                    levelObjects[i, j] = Instantiate(toInstantiate, new Vector3(i, j, 0), transform.rotation, transform.parent);
+
+                    levelObjects[i, j] = Instantiate(toInstantiate, new Vector3(i*roomSize, j*roomSize, 0), transform.rotation, transform.parent);
+                    levelObjects[i, j].transform.localScale = new Vector3(roomSize, roomSize, 1);
                 }
             }
         }
@@ -79,12 +86,12 @@ public class WorldGenerator : MonoBehaviour
                 if ((int)position.x + i >= 0 && (int)position.x + i < levelSize)
                 {
                     level[(int)position.x + i, (int)position.y].AddPoop();
-                    Instantiate(poopObj, new Vector3(position.x + i, position.y, 0), transform.rotation, levelObjects[(int)position.x,(int)position.y].transform);
+                    Instantiate(poopObj, new Vector3((position.x + i) * roomSize, position.y * roomSize, 0), transform.rotation, levelObjects[(int)position.x,(int)position.y].transform);
                 }
                 if ((int)position.y + i >= 0 && (int)position.y + i < levelSize)
                 {
                     level[(int)position.x, (int)position.y + i].AddPoop();
-                    Instantiate(poopObj, new Vector3(position.x, position.y + i, 0), transform.rotation, levelObjects[(int)position.x, (int)position.y].transform);
+                    Instantiate(poopObj, new Vector3(position.x * roomSize, (position.y + i) * roomSize, 0), transform.rotation, levelObjects[(int)position.x, (int)position.y].transform);
                 }
             }
         }
@@ -96,12 +103,12 @@ public class WorldGenerator : MonoBehaviour
                 if ((int)position.x + i >= 0 && (int)position.x + i < levelSize)
                 {
                     level[(int)position.x + i, (int)position.y].AddWind();
-                    Instantiate(windObj, new Vector3(position.x + i, position.y, 0), transform.rotation, transform.parent);
+                    Instantiate(windObj, new Vector3((position.x + i) * roomSize, position.y * roomSize, 0), transform.rotation, transform.parent).transform.localScale = new Vector3(roomSize, roomSize, 1);
                 }
                 if ((int)position.y + i >= 0 && (int)position.y + i < levelSize)
                 {
                     level[(int)position.x, (int)position.y + i].AddWind();
-                    Instantiate(windObj, new Vector3(position.x, position.y + i, 0), transform.rotation, transform.parent);
+                    Instantiate(windObj, new Vector3(position.x * roomSize, (position.y + i)*roomSize, 0), transform.rotation, transform.parent).transform.localScale = new Vector3(roomSize, roomSize, 1);
                 }
             }
         }
@@ -123,15 +130,15 @@ public class WorldGenerator : MonoBehaviour
                 else
                     toAdd = new Exit();
                 GameObject toInstantiate = instantiatedObject == 0 ? startObj : exitObj /*Exit*/;
-                System.Console.Out.WriteLine(toInstantiate.ToString());
                 if (instantiatedObject == 0)
                 {
                     startPosition = new Vector2(x, y);
-                    GameObject pTemp = Instantiate(AIObj, new Vector3(x, y, 0), transform.rotation, transform.parent);
+                    GameObject pTemp = Instantiate(AIObj, new Vector3(x*roomSize, y*roomSize, 0), transform.rotation, transform.parent);
+                    pTemp.transform.localScale = new Vector3(roomSize, roomSize, 1);
                     PlayButton.onClick.AddListener(() => pTemp.GetComponent<AI>().Play());
                 }    
                 level[x, y] = toAdd;
-                Instantiate(toInstantiate, new Vector3(x, y, 0), transform.rotation, transform.parent);
+                Instantiate(toInstantiate, new Vector3(x*roomSize, y*roomSize, 0), transform.rotation, transform.parent).transform.localScale = new Vector3(roomSize, roomSize, 1);
                 instantiatedObject++;
             }
         }
