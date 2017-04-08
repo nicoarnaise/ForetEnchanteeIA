@@ -615,7 +615,7 @@ public class AI : MonoBehaviour
 	/// </summary>
     private void CheckForBorder()
     {
-        if (world.GetRoom(posX - initialPosX + 1, posY - initialPosY) == null) // Right border
+        if (world.GetRoom(posX - initialPosX + 1, posY - initialPosY, false) == null) // Right border
         {
             for (int i = posX + 1; i < memorySize; i++)
             {
@@ -625,7 +625,7 @@ public class AI : MonoBehaviour
                 }
             }
         }
-        if (world.GetRoom(posX - initialPosX - 1, posY - initialPosY) == null) // Left border
+        if (world.GetRoom(posX - initialPosX - 1, posY - initialPosY, false) == null) // Left border
         {
             for (int i = posX - 1; i >= 0; i--)
             {
@@ -635,7 +635,7 @@ public class AI : MonoBehaviour
                 }
             }
         }
-        if (world.GetRoom(posX - initialPosX, posY - initialPosY + 1) == null) // Top border
+        if (world.GetRoom(posX - initialPosX, posY - initialPosY + 1, false) == null) // Top border
         {
             for (int i = 0; i < memorySize; i++)
             {
@@ -645,7 +645,7 @@ public class AI : MonoBehaviour
                 }
             }
         }
-        if (world.GetRoom(posX - initialPosX, posY - initialPosY - 1) == null) // Bottom border
+        if (world.GetRoom(posX - initialPosX, posY - initialPosY - 1, false) == null) // Bottom border
         {
             for (int i = 0; i < memorySize; i++)
             {
@@ -678,7 +678,7 @@ public class AI : MonoBehaviour
 		knownLevel[posX + (int)direction.x, posY + (int)direction.y].Remove(toRemove); // remove the monster possibility
         if (knownLevel[posX + (int)direction.x, posY + (int)direction.y].Count == 0) // if no possiblities left for the room
         {
-            knownLevel[posX + (int)direction.x, posY + (int)direction.y].Add(world.GetRoom(posX + (int)direction.x - initialPosX, posY + (int)direction.y - initialPosY), 1); // Adds the empty room possibility
+            knownLevel[posX + (int)direction.x, posY + (int)direction.y].Add(world.GetRoom(posX + (int)direction.x - initialPosX, posY + (int)direction.y - initialPosY, false), 1); // Adds the empty room possibility
         }
 		Debug.Log("Keys just right after rock : " + knownLevel[posX + (int)direction.x, posY + (int)direction.y].Count);
 
@@ -693,7 +693,7 @@ public class AI : MonoBehaviour
         if (knownLevel[posX, posY].Count > 1)
         {
             knownLevel[posX, posY].Clear();
-            knownLevel[posX, posY].Add(world.GetRoom(posX -initialPosX, posY-initialPosY), 1);
+            knownLevel[posX, posY].Add(world.GetRoom(posX -initialPosX, posY-initialPosY, true), 1);
             numberRoomLeft--;
         }
     }

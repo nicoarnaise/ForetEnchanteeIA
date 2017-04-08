@@ -8,6 +8,8 @@ public class WorldGenerator : MonoBehaviour
 
     public int roomSize = 300;
 
+    public GameObject grayObj;
+
     public GameObject emptyRoomObj;
 
     public GameObject windObj;
@@ -31,6 +33,7 @@ public class WorldGenerator : MonoBehaviour
     //public Data data;
     public Room[,] level;
     public GameObject[,] levelObjects;
+    public GameObject[,] grayObjects;
     public Vector2 startPosition;
 
     // Use this for initialization
@@ -46,6 +49,7 @@ public class WorldGenerator : MonoBehaviour
         levelSize = 3 + Data.Level;
         level = new Room[levelSize, levelSize];
         levelObjects = new GameObject[levelSize, levelSize];
+        grayObjects = new GameObject[levelSize, levelSize];
         AddStartAndExit(levelSize);
         List<Vector2> monsters = new List<Vector2>();
         List<Vector2> holes = new List<Vector2>();
@@ -54,6 +58,8 @@ public class WorldGenerator : MonoBehaviour
         {
             for (int j = 0; j < levelSize; j++)
             {
+                grayObjects[i, j] = Instantiate(grayObj, new Vector3(i * roomSize, j * roomSize, -1), transform.rotation, transform.parent);
+                grayObjects[i, j].transform.localScale = new Vector3(roomSize, roomSize, 1);
                 if (level[i, j] == null)
                 {
                     float score = UnityEngine.Random.value;
@@ -152,10 +158,14 @@ public class WorldGenerator : MonoBehaviour
 
     }
 
-    public Room GetRoom(int x, int y)
+    public Room GetRoom(int x, int y, bool toGo)
     {
         if ((int)startPosition.x + x < 0 || (int)startPosition.x + x >= levelSize || (int)startPosition.y + y < 0 || (int)startPosition.y + y >= levelSize)
             return null;
+        if (toGo)
+        {
+            grayObjects[(int)startPosition.x + x, (int)startPosition.y + y].SetActive(false);
+        }
         return level[(int)startPosition.x + x, (int)startPosition.y + y];
     }
 
