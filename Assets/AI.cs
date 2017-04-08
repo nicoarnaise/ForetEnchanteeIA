@@ -557,7 +557,7 @@ public class AI : MonoBehaviour
     private void MoveUp() 
     {
 		posY++; 
-        transform.Translate(Vector3.up);
+        transform.Translate(Vector3.up * world.roomSize);
         Move();
     }
 
@@ -567,7 +567,7 @@ public class AI : MonoBehaviour
     private void MoveDown()
     {
         posY--;
-        transform.Translate(Vector3.down);
+        transform.Translate(Vector3.down * world.roomSize);
         Move();
     }
 
@@ -577,7 +577,7 @@ public class AI : MonoBehaviour
     private void MoveRight()
     {
         posX++;
-        transform.Translate(Vector3.right);
+        transform.Translate(Vector3.right * world.roomSize);
         Move();
     }
 
@@ -587,7 +587,7 @@ public class AI : MonoBehaviour
     private void MoveLeft()
     {
         posX--;
-        transform.Translate(Vector3.left);
+        transform.Translate(Vector3.left * world.roomSize);
         Move();
     }
 
