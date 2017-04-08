@@ -25,6 +25,7 @@ public class WorldGenerator : MonoBehaviour
     public GameObject startObj;
     public GameObject AIObj;
     public Button PlayButton;
+	public Button AutoButton;
 
     public int levelSize;
     //public Data data;
@@ -136,6 +137,7 @@ public class WorldGenerator : MonoBehaviour
                     GameObject pTemp = Instantiate(AIObj, new Vector3(x*roomSize, y*roomSize, -1), transform.rotation, transform.parent);
                     pTemp.transform.localScale = new Vector3(roomSize, roomSize, 1);
                     PlayButton.onClick.AddListener(() => pTemp.GetComponent<AI>().Play());
+					AutoButton.onClick.AddListener(() => pTemp.GetComponent<AI>().AutoPlay());
                 }    
                 level[x, y] = toAdd;
                 Instantiate(toInstantiate, new Vector3(x*roomSize, y*roomSize, 0), transform.rotation, transform.parent).transform.localScale = new Vector3(roomSize, roomSize, 1);

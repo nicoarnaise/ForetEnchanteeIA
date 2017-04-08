@@ -26,6 +26,7 @@ public class Data : MonoBehaviour
         score += value;
         scoreText.text = "Score : " + score;
     }
+		
 
     // Use this for initialization
     void Awake()
@@ -38,8 +39,8 @@ public class Data : MonoBehaviour
             deathScore = -10 * (int)Mathf.Pow(level + 3, 2);
             exitScore = 10 * (int)Mathf.Pow(level + 3, 2);
         }
-        Text scoreText = GameObject.Find("UI/BottomPanel/ScoreText").GetComponent<Text>();
-        scoreText.text = "Score : " + score;
+		Text levelText = GameObject.Find("UI/TitlePanel/LevelText").GetComponent<Text>();
+		levelText.text = "Level : " + level;
     }
 
     public static void IncreaseLevel()
@@ -47,6 +48,9 @@ public class Data : MonoBehaviour
         level++;
         exitScore = 10 * (int)Mathf.Pow(level + 3, 2);
         deathScore = -10 * (int)Mathf.Pow(level + 3, 2);
+
+		Text levelText = GameObject.Find("UI/TitlePanel/LevelText").GetComponent<Text>();
+		levelText.text = "Level : " + level;
     }
 
     // Update is called once per frame

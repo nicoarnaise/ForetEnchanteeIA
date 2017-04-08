@@ -80,6 +80,9 @@ public class AI : MonoBehaviour
         initialPosition = transform.position;
     }
 
+	public void AutoPlay(){
+		InvokeRepeating ("Play", 0.1f, 0.2f);
+	}
 	/// <summary>
 	/// Main IA function according to BDI
 	/// </summary>
@@ -731,6 +734,7 @@ public class AI : MonoBehaviour
 	/// </summary>
     private void CompleteLevel()
     {
+		Debug.Log ("coucou");
         Data.addScore(Data.exitScore); // Updates the global score
         Data.IncreaseLevel(); // Increase the level 
         UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex, UnityEngine.SceneManagement.LoadSceneMode.Single); // Reload the scene with the new Data updates
