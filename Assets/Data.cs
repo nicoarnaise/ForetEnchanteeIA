@@ -41,6 +41,9 @@ public class Data : MonoBehaviour
         }
 		Text levelText = GameObject.Find("UI/TitlePanel/LevelText").GetComponent<Text>();
 		levelText.text = "Level : " + level;
+
+        Text scoreText = GameObject.Find("UI/BottomPanel/ScoreText").GetComponent<Text>();
+        scoreText.text = "Score : " + score;
     }
 
     public static void IncreaseLevel()

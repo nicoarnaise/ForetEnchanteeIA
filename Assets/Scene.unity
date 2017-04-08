@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -919,6 +919,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   roomSize: 300
+  grayObj: {fileID: 1247249365942662, guid: d7c8057a7bc22e64e88f3c7abdea1e51, type: 2}
   emptyRoomObj: {fileID: 1453545092497152, guid: d5bf42c038d557a4798d214d2dd68e92,
     type: 2}
   windObj: {fileID: 1815063631847174, guid: 2c52d08a09520fa4d9e5b2c229a28dff, type: 2}
@@ -931,6 +932,7 @@ MonoBehaviour:
   startObj: {fileID: 1148745186904962, guid: 10d44a952f68fc348b2050667a0ad376, type: 2}
   AIObj: {fileID: 1656811803017116, guid: 56b2e224dd60c6640829d5e102676ce1, type: 2}
   PlayButton: {fileID: 1768615873}
+  AutoButton: {fileID: 241967720}
   levelSize: 3
   startPosition: {x: 0, y: 0}
 --- !u!1 &1250644861

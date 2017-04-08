@@ -32,7 +32,7 @@ public class AI : MonoBehaviour
 	/// <summary>
 	/// Value determining whether or not the Agent should throw a rock
 	/// </summary>
-    private float monsterThreshold = 0.4f;
+    private float monsterThreshold = 0.25f;
 
 	/// <summary>
 	/// Score given to a room where nothing should happen
@@ -104,9 +104,6 @@ public class AI : MonoBehaviour
     {
             int coordX = (int)rooms[0].x; // X coordinate of the room position
             int coordY = (int)rooms[0].y; // Y coordinate of the room position
-		Debug.Log("ActionList.Count : " + rooms.Count);
-		Debug.Log("coordX :" + coordX +"coordY : " + coordY);
-		Debug.Log ("keys :" + knownLevel [coordX, coordY].Count);
 
             Room[] keys = new Room[knownLevel[coordX, coordY].Count]; // Number of possibilities left for the room
 			
@@ -287,6 +284,7 @@ public class AI : MonoBehaviour
     {
         float dangerProb = 0;
         float nonDangerProb = 1;
+        // get the number of valid predictors
         switch (getPredictorsCount(i, j, room))
         {
             case 0:
@@ -663,7 +661,6 @@ public class AI : MonoBehaviour
 	/// <param name="direction">Direction.</param>
     private void ThrowRock(Vector2 direction)
     {
-		Debug.Log ("Enter Throw Rock State");
 		// calls the world to change the real map
         world.TryKillMonsterAt(posX - initialPosX + (int)direction.x, posY - initialPosY + (int)direction.y);
 		Data.addScore(Data.rockScore); // Update the global score
@@ -680,7 +677,6 @@ public class AI : MonoBehaviour
         {
             knownLevel[posX + (int)direction.x, posY + (int)direction.y].Add(world.GetRoom(posX + (int)direction.x - initialPosX, posY + (int)direction.y - initialPosY, false), 1); // Adds the empty room possibility
         }
-		Debug.Log("Keys just right after rock : " + knownLevel[posX + (int)direction.x, posY + (int)direction.y].Count);
 
     }
 
@@ -734,7 +730,6 @@ public class AI : MonoBehaviour
 	/// </summary>
     private void CompleteLevel()
     {
-		Debug.Log ("coucou");
         Data.addScore(Data.exitScore); // Updates the global score
         Data.IncreaseLevel(); // Increase the level 
         UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex, UnityEngine.SceneManagement.LoadSceneMode.Single); // Reload the scene with the new Data updates
